@@ -11,9 +11,17 @@ return new class extends Migration
 {
     Schema::table('users', function (Blueprint $table) {
         $table->string('company_name')->nullable();
-        $table->string('cidb_grade')->nullable();
-        $table->text('services')->nullable();
-        $table->integer('year_established')->nullable();
+        $table->text('company_address')->nullable();
+        $table->string('pic_name')->nullable(); // Person In Charge
+        $table->string('pic_phone')->nullable();
+        $table->string('office_phone')->nullable();
+        $table->string('company_email')->nullable();
+        $table->string('cidb_reg_number')->nullable();
+        $table->string('ssm_number')->nullable();
+        $table->string('company_level')->nullable();
+        $table->year('year_established')->nullable();
+        $table->json('cidb_grades')->nullable(); // To store multiple (G1, G2, etc.)
+        $table->text('services_provided')->nullable();
     });
 }
 

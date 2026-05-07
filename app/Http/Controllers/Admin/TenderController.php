@@ -36,7 +36,7 @@ class TenderController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'tender_ref_number' => 'required|string|unique:tenders,tender_ref_number', // Ensure this is here
-            'required_grade' => 'required|array',
+            'cidb_grade' => 'required|array',
             'required_services' => 'required|string',
             'deadline' => 'required|date',
             'description' => 'required|string',
@@ -48,7 +48,7 @@ class TenderController extends Controller
         ]);
 
         // Format the data
-        $validated['required_grade'] = implode(',', $request->required_grade);
+        $validated['cidb_grade'] = implode(',', $request->cidb_grade);
         $validated['status'] = 'open';
 
         // This will now work because $validated contains all the new fields!
@@ -65,15 +65,15 @@ class TenderController extends Controller
         $tender = Tender::findOrFail($id);
 
         // Convert the tender's grade string (e.g., "G1,G2") into an array
-        $requiredGradesArray = explode(',', $tender->required_grade);
+        $requiredGradesArray = explode(',', $tender->cidb_grades);
 
         // 1. Fetch subcons that match the required grades
 
         $matchedSubcons = User::where('role', 'subcon')
             ->where('status', 'active')
             ->where(function($query) use ($requiredGradesArray) {
-                foreach ($requiredGradesArray as $grade) {
-                    $query->orWhere('grade', 'LIKE', '%' . trim($grade) . '%');
+                foreach ($requiredGradesArray as $cidb_grades) {
+                    $query->orWhere('cidb_grades', 'LIKE', '%' . trim($cidb_grades) . '%');
                 }
             })
             ->get();
@@ -82,7 +82,7 @@ class TenderController extends Controller
             return view('admin.tenders.match-results', [
                 'tender' => $tender,
                 'matchedSubcons' => collect(), // Pass an empty collection to avoid errors
-                'aiResponse' => "No active subcontractors found matching the required grades: {$tender->required_grade}."
+                'aiResponse' => "No active subcontractors found matching the required grades: {$tender->cidb_grade}."
             ]);
         }
 
@@ -98,7 +98,7 @@ class TenderController extends Controller
 
         $prompt = "STRICT INSTRUCTION: Use ONLY the subcontractors listed below.
                 TENDER PROJECT: {$cleanTitle}
-                TENDER GRADES ACCEPTED: {$tender->required_grade}
+                TENDER GRADES ACCEPTED: {$tender->cidb_grade}
                 TENDER SERVICES NEEDED: {$tender->required_services}
                 TENDER SCOPE: {$tender->description}
 
@@ -174,7 +174,7 @@ class TenderController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'tender_ref_number' => 'required|string',
-            'required_grade' => 'required|array',
+            'cidb_grade' => 'required|array',
             'required_services' => 'required|string',
             'deadline' => 'required|date',
             'description' => 'required|string',
@@ -186,7 +186,7 @@ class TenderController extends Controller
             'status' => 'required|string',
         ]);
 
-        $validated['required_grade'] = implode(',', $request->required_grade);
+        $validated['cidb_grade'] = implode(',', $request->cidb_grade);
 
         $tender->update($validated);
 
