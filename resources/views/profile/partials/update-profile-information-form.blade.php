@@ -72,6 +72,19 @@
             <x-input-error class="mt-2" :messages="$errors->get('services')" />
         </div>
 
+        <div>
+            <x-input-label for="year_established" :value="__('Year Established')" />
+            <select id="year_established" name="year_established" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full">
+                <option value="">Select Year</option>
+                @for ($year = date('Y'); $year >= 1950; $year--)
+                    <option value="{{ $year }}" {{ old('year_established', $user->year_established) == $year ? 'selected' : '' }}>
+                        {{ $year }}
+                    </option>
+                @endfor
+            </select>
+            <x-input-error class="mt-2" :messages="$errors->get('year_established')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ ('Save') }}</x-primary-button>
 
