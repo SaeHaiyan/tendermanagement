@@ -6,18 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
+    /**
+     * Run the migrations.
+     */
     public function up(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->string('company_name')->nullable();
-        $table->string('cidb_grade')->nullable();
-        $table->text('services')->nullable();
-        $table->integer('year_established')->nullable();
-    });
-}
+    {
+        Schema::table('users', function (Blueprint $table) {
+        $table->string('status')->default('pending')->after('role');
+        });
+    }
 
-
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {

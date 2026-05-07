@@ -1,102 +1,116 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ ('Profile Information') }}
+        <h2 class="text-lg font-black text-slate-900 uppercase tracking-widest">
+            {{ __('Profile Information') }}
         </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
-            {{ ("Update your account's profile information, email address, and company details.") }}
+        <p class="mt-1 text-sm text-slate-600">
+            {{ __("Update your account's profile information and company details.") }}
         </p>
     </header>
-
-    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
-        @csrf
-    </form>
+    @if (session('status') === 'profile-updated')
+        <div x-data="{ show: true }"
+             x-show="show"
+             x-init="setTimeout(() => show = false, 2500)"
+             class="mt-4 text-sm text-emerald-600 font-black uppercase tracking-widest bg-emerald-50 px-4 py-3 rounded border border-emerald-200">
+            {{ __('Saved successfully.') }}
+        </div>
+    @endif
 
     <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
         @csrf
         @method('patch')
 
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+        {{-- Personal Details --}}
+        <div class="space-y-4">
+            <div>
+                <x-input-label for="name" :value="__('Name')" />
+                <x-text-input id="name" name="name" type="text" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('name', $user->name)" required />
+            </div>
+            <div>
+                <x-input-label for="email" :value="__('Email')" />
+                <x-text-input id="email" name="email" type="email" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('email', $user->email)" required />
+            </div>
         </div>
 
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+        <hr class="border-slate-100">
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ ('Your email address is unverified.') }}
+        {{-- Company Details --}}
+        <div class="space-y-4">
+            <h3 class="text-xs font-black text-red-600 uppercase tracking-widest">Company Details</h3>
 
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ ('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ ('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <x-input-label for="company_name" :value="__('Company Name')" />
+                    <x-text-input id="company_name" name="company_name" type="text" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('company_name', $user->company_name)" />
                 </div>
-            @endif
+
+                <div class="col-span-2">
+                    <x-input-label for="company_address" :value="__('Company Address')" />
+                    <textarea id="company_address" name="company_address" rows="2" class="mt-1 block w-full border-slate-200 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">{{ old('company_address', $user->company_address) }}</textarea>
+                </div>
+
+                <div>
+                    <x-input-label for="pic_name" :value="__('Person In Charge (PIC)')" />
+                    <x-text-input id="pic_name" name="pic_name" type="text" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('pic_name', $user->pic_name)" />
+                </div>
+                <div>
+                    <x-input-label for="phone_pic" :value="__('PIC Phone Number')" />
+                    <x-text-input id="phone_pic" name="phone_pic" type="tel" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('phone_pic', $user->phone_pic)" />
+                </div>
+                <div>
+                    <x-input-label for="phone_office" :value="__('Office Phone Number')" />
+                    <x-text-input id="phone_office" name="phone_office" type="tel" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('phone_office', $user->phone_office)" />
+                </div>
+                <div>
+                    <x-input-label for="company_email" :value="__('Company Official Email')" />
+                    <x-text-input id="company_email" name="company_email" type="email" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('company_email', $user->company_email)" />
+                </div>
+                <div>
+                    <x-input-label for="cidb_reg_number" :value="__('CIDB Reg. Number')" />
+                    <x-text-input id="cidb_reg_number" name="cidb_reg_number" type="text" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('cidb_reg_number', $user->cidb_reg_number)" />
+                </div>
+                <div>
+                    <x-input-label for="ssm_number" :value="__('SSM Number')" />
+                    <x-text-input id="ssm_number" name="ssm_number" type="text" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('ssm_number', $user->ssm_number)" />
+                </div>
+                <div>
+                    <x-input-label for="company_level" :value="__('Company Level')" />
+                    <x-text-input id="company_level" name="company_level" type="text" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('company_level', $user->company_level)" />
+                </div>
+                <div>
+                    <x-input-label for="year_established" :value="__('Year Established')" />
+                    <select id="year_established" name="year_established" class="mt-1 block w-full border-slate-200 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        <option value="">Year</option>
+                        @for ($year = date('Y'); $year >= 1950; $year--)
+                            <option value="{{ $year }}" {{ old('year_established', $user->year_established) == $year ? 'selected' : '' }}>{{ $year }}</option>
+                        @endfor
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <x-input-label :value="__('CIDB Grades (Select all)')" />
+                <div class="mt-2 grid grid-cols-7 gap-2">
+                    @php $selectedGrades = is_array($user->cidb_grades) ? $user->cidb_grades : json_decode($user->cidb_grades, true) ?? []; @endphp
+                    @foreach(['G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7'] as $g)
+                        <label class="relative flex items-center justify-center p-2 rounded border border-slate-200 cursor-pointer hover:bg-red-50 transition-all has-[:checked]:bg-red-50 has-[:checked]:border-red-400">
+                            <input type="checkbox" name="cidb_grades[]" value="{{ $g }}" class="hidden" {{ in_array($g, $selectedGrades) ? 'checked' : '' }}>
+                            <span class="text-xs font-black text-slate-700">{{ $g }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <div>
+                <x-input-label for="services" :value="__('Services Provided')" />
+                <textarea id="services" name="services" rows="3" class="mt-1 block w-full border-slate-200 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">{{ old('services', $user->services) }}</textarea>
+            </div>
         </div>
 
-        <hr class="border-gray-200">
-
-        <div>
-            <x-input-label for="company_name" :value="__('Company Name')" />
-            <x-text-input id="company_name" name="company_name" type="text" class="mt-1 block w-full" :value="old('company_name', $user->company_name)" />
-            <x-input-error class="mt-2" :messages="$errors->get('company_name')" />
-        </div>
-
-        <div>
-            <x-input-label for="grade" :value="__('CIDB Grade')" />
-            <select id="grade" name="grade" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full">
-                <option value="">Select Grade</option>
-                @foreach(['G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7'] as $g)
-                    <option value="{{ $g }}" {{ old('grade', $user->grade) == $g ? 'selected' : '' }}>{{ $g }}</option>
-                @endforeach
-            </select>
-            <x-input-error class="mt-2" :messages="$errors->get('grade')" />
-        </div>
-
-        <div>
-            <x-input-label for="services" :value="__('Services Provided')" />
-            <textarea id="services" name="services" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full">{{ old('services', $user->services) }}</textarea>
-            <x-input-error class="mt-2" :messages="$errors->get('services')" />
-        </div>
-
-        <div>
-            <x-input-label for="year_established" :value="__('Year Established')" />
-            <select id="year_established" name="year_established" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full">
-                <option value="">Select Year</option>
-                @for ($year = date('Y'); $year >= 1950; $year--)
-                    <option value="{{ $year }}" {{ old('year_established', $user->year_established) == $year ? 'selected' : '' }}>
-                        {{ $year }}
-                    </option>
-                @endfor
-            </select>
-            <x-input-error class="mt-2" :messages="$errors->get('year_established')" />
-        </div>
-
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ ('Save') }}</x-primary-button>
-
-            @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ ('Saved.') }}</p>
-            @endif
+        <div class="flex items-center gap-4 pt-4">
+            <x-primary-button class="bg-red-600 hover:bg-red-700 transition uppercase tracking-widest font-black">
+                {{ ('Save Changes') }}
+            </x-primary-button>
         </div>
     </form>
 </section>

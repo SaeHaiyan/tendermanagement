@@ -3,35 +3,66 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\TenderController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\CheckAdmin;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
     return redirect()->route('login');
 });
 
-// Login session - UPDATED LOGIC HERE
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        // If the user is an Admin, send them to their own dashboard
-        if (Auth::user()->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        }
+// --- NEW SECURITY ROUTE: FORCED TAB LOGOUT ---
+Route::get('/logout-forced', function (Request $request) {
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect('/login');
+})->name('logout-forced');
 
-        // Otherwise, show the standard Subcon dashboard
-        return view('dashboard');
-    })->name('dashboard');
+// --- SUBCON DASHBOARD & PROGRESS ROUTES ---
+Route::middleware(['auth', 'check_status'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/history', [DashboardController::class, 'history'])->name('dashboard.history');
+
+    Route::patch('/dashboard/tenders/{tender}/progress', [DashboardController::class, 'updateProgress'])->name('subcon.tenders.update-progress');
+    Route::post('/dashboard/tenders/{tender}/upload-report', [DashboardController::class, 'uploadReport'])->name('subcon.tenders.upload-report');
+    Route::post('/tenders/{tender}/replace-file', [DashboardController::class, 'replaceFile'])->name('subcon.tenders.replace-file');
 });
 
+// --- PROFILE ROUTES ---
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Admin routes
+// --- ADMIN MANAGEMENT ROUTES ---
 Route::middleware(['auth', CheckAdmin::class])->group(function () {
+
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/subcon/{id}', [AdminController::class, 'show'])->name('admin.subcon.show');
+    Route::patch('/admin/subcon/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.subcon.update-status');
+    Route::delete('/admin/subcon/{id}', [AdminController::class, 'destroy'])->name('admin.subcon.destroy');
+
+    Route::get('/admin/tenders', [TenderController::class, 'index'])->name('admin.tenders.index');
+    Route::get('/admin/tenders/create', [TenderController::class, 'create'])->name('admin.tenders.create');
+    Route::post('/admin/tenders', [TenderController::class, 'store'])->name('admin.tenders.store');
+    Route::get('/admin/tenders/{tender}/edit', [TenderController::class, 'edit'])->name('admin.tenders.edit');
+    Route::put('/admin/tenders/{tender}', [TenderController::class, 'update'])->name('admin.tenders.update');
+    Route::delete('/admin/tenders/{tender}', [TenderController::class, 'destroy'])->name('admin.tenders.destroy');
+
+    Route::get('/admin/tenders/{tender}/match', [TenderController::class, 'match'])->name('admin.tenders.match');
+    Route::patch('/admin/tenders/{tender}/assign', [TenderController::class, 'assignSubcon'])->name('admin.tenders.assign');
+    Route::patch('/admin/tenders/{id}/reassign', [TenderController::class, 'reassign'])->name('admin.tenders.reassign');
+
+    Route::get('/admin/tenders/{tender}', [TenderController::class, 'show'])->name('admin.tenders.show');
+    Route::patch('/admin/tenders/{id}/approve', [DashboardController::class, 'approve'])->name('admin.tenders.approve');
+    Route::post('/admin/tenders/{tender}/reject-file', [TenderController::class, 'rejectFile'])->name('admin.tenders.reject-file');
 });
 
 require __DIR__.'/auth.php';

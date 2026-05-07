@@ -11,8 +11,11 @@ export default {
 
     theme: {
         extend: {
-            fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            colors: {
+                aito: {
+                    red: '#E11D48', // A punchy, modern red
+                    dark: '#111827', // A deep charcoal (better than pure black for UI)
+                },
             },
         },
     },

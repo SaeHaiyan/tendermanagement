@@ -19,15 +19,12 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',
-        'company_name',   
-        'grade',          
-        'services',       
-        'year_established'
+        'name', 'email', 'password',
+        'company_name', 'company_address', 'pic_name', 'phone_office',
+        'phone_pic', 'company_email', 'cidb_reg_number', 'ssm_number',
+        'company_level', 'services', 'year_established', 'cidb_grade', 'status'
     ];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -37,6 +34,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'grade' => 'array'
     ];
 
     /**
@@ -49,6 +47,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'cidb_grade' => 'array',
         ];
     }
 }

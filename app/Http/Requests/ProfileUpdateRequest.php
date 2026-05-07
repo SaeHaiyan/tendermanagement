@@ -18,11 +18,19 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->user()->id)],
             'company_name' => ['nullable', 'string', 'max:255'],
-            'grade' => ['nullable', 'string'],
+            'company_address' => ['nullable', 'string'],
+            'pic_name' => ['nullable', 'string', 'max:255'],
+            'phone_office' => ['nullable', 'string', 'max:20'],
+            'phone_pic' => ['nullable', 'string', 'max:20'],
+            'company_email' => ['nullable', 'email', 'max:255'],
+            'cidb_reg_number' => ['nullable', 'string', 'max:100'],
+            'ssm_number' => ['nullable', 'string', 'max:100'],
+            'company_level' => ['nullable', 'string', 'max:100'],
             'services' => ['nullable', 'string'],
-            'year_established' => ['nullable', 'integer', 'min:1900', 'max:'.date('Y')],
+            'year_established' => ['nullable', 'integer'],
+            'grade' => ['nullable', 'array'], // Validate as an array
         ];
     }
 }
