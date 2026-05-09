@@ -54,12 +54,12 @@
                     <x-text-input id="pic_name" name="pic_name" type="text" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('pic_name', $user->pic_name)" />
                 </div>
                 <div>
-                    <x-input-label for="phone_pic" :value="__('PIC Phone Number')" />
-                    <x-text-input id="phone_pic" name="phone_pic" type="tel" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('phone_pic', $user->phone_pic)" />
+                    <x-input-label for="pic_phone" :value="__('PIC Phone Number')" />
+                    <x-text-input id="pic_phone" name="pic_phone" type="tel" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('pic_phone', $user->pic_phone)" />
                 </div>
                 <div>
-                    <x-input-label for="phone_office" :value="__('Office Phone Number')" />
-                    <x-text-input id="phone_office" name="phone_office" type="tel" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('phone_office', $user->phone_office)" />
+                    <x-input-label for="office_phone" :value="__('Office Phone Number')" />
+                    <x-text-input id="office_phone" name="office_phone" type="tel" class="mt-1 block w-full border-slate-200 focus:border-red-500 focus:ring-red-500" :value="old('office_phone', $user->office_phone)" />
                 </div>
                 <div>
                     <x-input-label for="company_email" :value="__('Company Official Email')" />
@@ -102,8 +102,8 @@
             </div>
 
             <div>
-                <x-input-label for="services" :value="__('Services Provided')" />
-                <textarea id="services" name="services" rows="3" class="mt-1 block w-full border-slate-200 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">{{ old('services', $user->services) }}</textarea>
+                <x-input-label for="services_provided" :value="__('Services_provided')" />
+                <textarea id="services_provided" name="services_provided" rows="3" class="mt-1 block w-full border-slate-200 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">{{ old('services_provided', $user->services_provided) }}</textarea>
             </div>
         </div>
 

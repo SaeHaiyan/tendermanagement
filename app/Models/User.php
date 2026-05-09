@@ -34,7 +34,7 @@ class User extends Authenticatable
         'ssm_number',
         'company_level',
         'year_established',
-        'cidb_grade',
+        'cidb_grades',
         'services_provided',
     ];
 

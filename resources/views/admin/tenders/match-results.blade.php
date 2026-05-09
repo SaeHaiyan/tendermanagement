@@ -65,7 +65,7 @@
                                     <option value="">Select a winner...</option>
                                     @foreach($matchedSubcons as $subcon)
                                         <option value="{{ $subcon->id }}">
-                                            {{ $subcon->company_name }} (Grade {{ is_array($subcon->grade) ? implode(', ', $subcon->grade) : $subcon->grade }})
+                                            {{ $subcon->company_name }} (Grade {{ is_array($subcon->cidb_grades) ? implode(', ', $subcon->cidb_grades) : $subcon->cidb_grades }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -100,7 +100,7 @@
                         <div class="bg-slate-900 px-8 py-4 flex justify-between items-center">
                             <div class="flex items-center gap-2">
                                 <div class="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></div>
-                                <span class="text-slate-300 text-xs font-bold uppercase tracking-widest">Gemini 3 Intelligence Report</span>
+                                <span class="text-slate-300 text-xs font-bold uppercase tracking-widest">Gemini Intelligence Report</span>
                             </div>
                         </div>
 
@@ -147,9 +147,9 @@
                                     <tr>
                                         <td class="px-6 py-4 font-bold text-slate-800">{{ $subcon->company_name }}</td>
                                         <td class="px-6 py-4">
-                                            {{ is_array($subcon->grade) ? implode(', ', $subcon->grade) : $subcon->grade }}
+                                            {{ is_array($subcon->cidb_grades) ? implode(', ', $subcon->cidb_grades) : $subcon->cidb_grades }}
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-gray-600">{{ Str::limit($subcon->services, 50) }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">{{ Str::limit($subcon->services_provided, 50) }}</td>
                                     </tr>
                                 @empty
                                     <tr>

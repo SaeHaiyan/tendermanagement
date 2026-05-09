@@ -54,7 +54,7 @@
                     <div>
                         <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">CIDB Grade</h4>
                         <p class="text-3xl font-black text-gray-900">
-                            {{ is_array($subcon->grade) ? implode(', ', $subcon->grade) : $subcon->grade }}
+                            {{ is_array($subcon->cidb_grades) ? implode(', ', $subcon->cidb_grades) : $subcon->cidb_grades }}
                         </p>
                     </div>
                     <div>
@@ -101,11 +101,11 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Office Phone</h4>
-                            <p class="text-sm font-bold text-gray-900">{{ $subcon->phone_office ?? 'N/A' }}</p>
+                            <p class="text-sm font-bold text-gray-900">{{ $subcon->office_phone ?? 'N/A' }}</p>
                         </div>
                         <div>
                             <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">PIC Mobile</h4>
-                            <p class="text-sm font-bold text-gray-900">{{ $subcon->phone_pic ?? 'N/A' }}</p>
+                            <p class="text-sm font-bold text-gray-900">{{ $subcon->pic_phone ?? 'N/A' }}</p>
                         </div>
                     </div>
                     <div class="col-span-2">
@@ -118,8 +118,8 @@
                 <div class="px-8 pb-8">
                     <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Services Provided</h4>
                     <div class="bg-gray-50 p-6 rounded border border-gray-200 text-gray-700 leading-relaxed italic">
-                        @if($subcon->services)
-                            {!! nl2br(e($subcon->services)) !!}
+                        @if($subcon->services_provided)
+                            {!! nl2br(e($subcon->services_provided)) !!}
                         @else
                             <span class="text-gray-400">No services description provided by this subcon.</span>
                         @endif
