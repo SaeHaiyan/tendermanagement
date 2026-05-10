@@ -16,7 +16,7 @@ class TenderController extends Controller
      */
     public function index()
     {
-        $tenders = Tender::latest()->get();
+        $tenders = Tender::latest('created_at')->get();
         return view('admin.tenders.index', compact('tenders'));
     }
 
@@ -71,9 +71,9 @@ class TenderController extends Controller
 
         $matchedSubcons = User::where('role', 'subcon')
             ->where('status', 'active')
-            ->where(function ($query) use ($requiredGradesArray) {
-                foreach ($requiredGradesArray as $grade) {
-                    $query->orWhereJsonContains('cidb_grades', trim($grade));
+            ->where(function($query) use ($requiredGradesArray) {
+                foreach ($requiredGradesArray as $cidb_grades) {
+                    $query->orWhere('cidb_grades', 'LIKE', '%' . trim($cidb_grades) . '%');
                 }
             })
             ->get();
@@ -211,11 +211,13 @@ class TenderController extends Controller
         return redirect()->route('admin.tenders.index')->with('success', 'Project marked as Completed!');
     }
 
-    public function show(Tender $tenders)
+    public function show(Tender $tender)
     {
-        $subcons = User::where('role', 'subcon')->get();
+        $subcons = User::where('role', 'subcon')
+            ->where('status', 'active')
+            ->get();
 
-        return view('admin.tenders.show', compact('tenders', 'subcons'));
+        return view('admin.tenders.show', compact('tender', 'subcons'));
     }
 
     public function rejectFile(Request $request, Tender $tenders)
