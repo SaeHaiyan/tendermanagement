@@ -102,7 +102,7 @@
             </div>
 
             <div>
-                <x-input-label for="services_provided" :value="__('Services_provided')" />
+                <x-input-label for="services_provided" :value="__('Services Provided')" />
                 <textarea id="services_provided" name="services_provided" rows="3" class="mt-1 block w-full border-slate-200 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">{{ old('services_provided', $user->services_provided) }}</textarea>
             </div>
         </div>

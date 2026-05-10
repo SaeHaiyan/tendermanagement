@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-black text-xl text-gray-800 uppercase tracking-widest">
-            AI Matchmaking: {{ $tender->title }}
+            AI Matchmaking: {{ $tenders->title }}
         </h2>
     </x-slot>
 
@@ -28,15 +28,15 @@
                             </ol>
                         </nav>
                         <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">
-                            {{ $tender->title }}
+                            {{ $tenders->title }}
                         </h2>
                     </div>
                     <div class="flex items-center gap-3">
                         <span class="inline-flex items-center ...">
-                            Grade {{ is_array($tender->required_grade) ? implode(', ', $tender->required_grade) : $tender->required_grade }}
+                            Grade {{ is_array($tenders->required_grade) ? implode(', ', $tenders->required_grade) : $tenders->required_grade }}
                         </span>
-                        <span class="inline-flex items-center px-4 py-2 rounded-xl {{ $tender->selected_subcon_id ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100' }} border font-bold text-sm">
-                            {{ $tender->selected_subcon_id ? 'Assigned' : 'Awaiting Selection' }}
+                        <span class="inline-flex items-center px-4 py-2 rounded-xl {{ $tenders->selected_subcon_id ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100' }} border font-bold text-sm">
+                            {{ $tenders->selected_subcon_id ? 'Assigned' : 'Awaiting Selection' }}
                         </span>
                     </div>
                 </div>
@@ -50,15 +50,15 @@
                     {{-- Assignment Card --}}
                     <div class="bg-indigo-600 p-6 rounded-2xl shadow-lg text-white">
                         <h4 class="font-bold text-lg mb-2">Assign Project</h4>
-                        @if($tender->selected_subcon_id)
+                        @if($tenders->selected_subcon_id)
                             <div class="mt-4 p-4 bg-white/10 rounded-xl border border-white/20">
                                 <p class="text-xs font-bold uppercase opacity-70">Selected Subcontractor:</p>
-                                <p class="text-lg font-black mt-1">{{ $tender->selectedSubcon->company_name ?? 'Assigned' }}</p>
-                                <p class="text-[10px] mt-2 opacity-80 italic">Status: {{ ucfirst($tender->work_status) }}</p>
+                                <p class="text-lg font-black mt-1">{{ $tenders->selectedSubcon->company_name ?? 'Assigned' }}</p>
+                                <p class="text-[10px] mt-2 opacity-80 italic">Status: {{ ucfirst($tenders->work_status) }}</p>
                             </div>
                         @else
                             <p class="text-indigo-100 text-sm mb-4 opacity-90">Based on the AI report, select the most suitable candidate to begin work.</p>
-                            <form action="{{ route('admin.tenders.assign', $tender->id) }}" method="POST" class="space-y-4">
+                            <form action="{{ route('admin.tenders.assign', $tenders->id) }}" method="POST" class="space-y-4">
                                 @csrf
                                 @method('PATCH')
                                 <select name="subcon_id" required class="w-full rounded-xl border-none text-slate-900 text-sm font-bold focus:ring-2 focus:ring-indigo-300">
@@ -82,11 +82,11 @@
                         <div class="space-y-4">
                             <div>
                                 <p class="text-xs text-slate-500 mb-1">Target Services</p>
-                                <p class="text-sm font-semibold text-slate-800">{{ $tender->required_services }}</p>
+                                <p class="text-sm font-semibold text-slate-800">{{ $tenders->required_services }}</p>
                             </div>
                             <div>
                                 <p class="text-xs text-slate-500 mb-1">Deadline</p>
-                                <p class="text-sm font-semibold text-slate-800">{{ \Carbon\Carbon::parse($tender->deadline)->format('d M, Y') }}</p>
+                                <p class="text-sm font-semibold text-slate-800">{{ \Carbon\Carbon::parse($tenders->deadline)->format('d M, Y') }}</p>
                             </div>
                         </div>
                     </div>
@@ -122,7 +122,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7 7-7"></path></svg>
                                     Return to List
                                 </a>
-                                <a href="{{ route('admin.tenders.match', [$tender->id, 'force' => 'true']) }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-bold text-sm transition">
+                                <a href="{{ route('admin.tenders.match', [$tenders->id, 'force' => 'true']) }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-bold text-sm transition">
                                     Regenerate Analysis
                                 </a>
                             </div>
@@ -147,9 +147,11 @@
                                     <tr>
                                         <td class="px-6 py-4 font-bold text-slate-800">{{ $subcon->company_name }}</td>
                                         <td class="px-6 py-4">
-                                            {{ is_array($subcon->cidb_grades) ? implode(', ', $subcon->cidb_grades) : $subcon->cidb_grades }}
+                                            {{ implode(', ', $subcon->cidb_grades) }}
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-gray-600">{{ Str::limit($subcon->services_provided, 50) }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-600">
+                                            {{ \Illuminate\Support\Str::limit($subcon->services_provided, 50) }}
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -157,7 +159,7 @@
                                             <div class="flex flex-col items-center justify-center text-slate-400">
                                                 <svg class="w-12 h-12 mb-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                 <p class="font-black uppercase text-sm">No compatible candidates found</p>
-                                                <p class="text-xs">Adjust the tender criteria or add more subcontractors to the directory.</p>
+                                                <p class="text-xs">Adjust the tenders criteria or add more subcontractors to the directory.</p>
                                             </div>
                                         </td>
                                     </tr>

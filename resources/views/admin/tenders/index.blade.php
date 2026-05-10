@@ -10,6 +10,12 @@
 
     <div class="py-12 mx-auto sm:px-6 lg:px-8">
 
+        @if(session('success'))
+            <div class="mb-4 p-4 rounded-xl bg-green-100 border border-green-300 text-green-700 font-semibold">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <div class="flex justify-between items-end mb-8">
             <div>
                 <h3 class="text-lg font-bold text-gray-900 tracking-wide uppercase">

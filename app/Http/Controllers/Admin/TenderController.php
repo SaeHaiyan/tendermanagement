@@ -35,8 +35,8 @@ class TenderController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'tender_ref_number' => 'required|string|unique:tenders,tender_ref_number', // Ensure this is here
-            'cidb_grade' => 'required|array',
+            'tender_ref_number' => 'required|string|unique:tenders,tender_ref_number',
+            'required_grade' => 'required|array',
             'required_services' => 'required|string',
             'deadline' => 'required|date',
             'description' => 'required|string',
@@ -48,7 +48,7 @@ class TenderController extends Controller
         ]);
 
         // Format the data
-        $validated['cidb_grade'] = implode(',', $request->cidb_grade);
+        $validated['required_grade'] = implode(',', $request->required_grade);
         $validated['status'] = 'open';
 
         // This will now work because $validated contains all the new fields!
@@ -62,45 +62,45 @@ class TenderController extends Controller
      */
     public function match(int $id)
     {
-        $tender = Tender::findOrFail($id);
+        $tenders = Tender::findOrFail($id);
 
         // Convert the tender's grade string (e.g., "G1,G2") into an array
-        $requiredGradesArray = explode(',', $tender->cidb_grades);
+        $requiredGradesArray = explode(',', $tenders->required_grade);
 
         // 1. Fetch subcons that match the required grades
 
         $matchedSubcons = User::where('role', 'subcon')
             ->where('status', 'active')
-            ->where(function($query) use ($requiredGradesArray) {
-                foreach ($requiredGradesArray as $cidb_grades) {
-                    $query->orWhere('cidb_grades', 'LIKE', '%' . trim($cidb_grades) . '%');
+            ->where(function ($query) use ($requiredGradesArray) {
+                foreach ($requiredGradesArray as $grade) {
+                    $query->orWhereJsonContains('cidb_grades', trim($grade));
                 }
             })
             ->get();
 
         if ($matchedSubcons->isEmpty()) {
             return view('admin.tenders.match-results', [
-                'tender' => $tender,
+                'tenders' => $tenders,
                 'matchedSubcons' => collect(), // Pass an empty collection to avoid errors
-                'aiResponse' => "No active subcontractors found matching the required grades: {$tender->cidb_grade}."
+                'aiResponse' => "No active subcontractors found matching the required grades: {$tenders->required_grade}."
             ]);
         }
 
         // 3. Prepare the list for AI
         $subconList = $matchedSubcons->map(function($s) {
             $name = preg_replace('/[^A-Za-z0-9 ]/', '', $s->company_name);
-            $grade = is_array($s->grade) ? implode(', ', $s->grade) : $s->grade;
-            $services = is_array($s->services) ? implode(', ', $s->services) : $s->services;
+            $grade = is_array($s->cidb_grades) ? implode(', ', $s->cidb_grades) : $s->cidb_grades;
+            $services = is_array($s->services_provided) ? implode(', ', $s->services_provided) : $s->services_provided;
             return "Company: {$name} | Subcon Grade: {$grade} | Services: {$services}";
         })->implode("\n");
 
-        $cleanTitle = preg_replace('/[^A-Za-z0-9 ]/', '', $tender->title);
+        $cleanTitle = preg_replace('/[^A-Za-z0-9 ]/', '', $tenders->title);
 
         $prompt = "STRICT INSTRUCTION: Use ONLY the subcontractors listed below.
                 TENDER PROJECT: {$cleanTitle}
-                TENDER GRADES ACCEPTED: {$tender->cidb_grade}
-                TENDER SERVICES NEEDED: {$tender->required_services}
-                TENDER SCOPE: {$tender->description}
+                TENDER GRADES ACCEPTED: {$tenders->required_grade}
+                TENDER SERVICES NEEDED: {$tenders->required_services}
+                TENDER SCOPE: {$tenders->description}
 
                 DATABASE LIST OF ELIGIBLE SUBCONTRACTORS:
                 {$subconList}
@@ -117,7 +117,7 @@ class TenderController extends Controller
         try {
             $apiKey = config('gemini.api_key');
             $client = Gemini::client($apiKey);
-            $result = $client->generativeModel(model: 'gemini-3-flash-preview')->generateContent($prompt);
+            $result = $client->generativeModel(model: 'gemini-3-flash')->generateContent($prompt);
             $aiResponse = $result->text();
         } catch (\Exception $e) {
             // ADD THIS LINE to log the exact error to storage/logs/laravel.log
@@ -126,55 +126,55 @@ class TenderController extends Controller
             $aiResponse = "🚨 AI Analysis currently unavailable. Please review matched subcontractors manually below.";
         }
 
-        return view('admin.tenders.match-results', compact('tender', 'aiResponse', 'matchedSubcons'));
+        return view('admin.tenders.match-results', compact('tenders', 'aiResponse', 'matchedSubcons'));
     }
 
     /**
      * Assign the project to the chosen subcontractor.
      */
-    public function assignSubcon(Request $request, Tender $tender)
+    public function assignSubcon(Request $request, Tender $tenders)
     {
         $request->validate([
             'subcon_id' => 'required|exists:users,id',
         ]);
 
-        if ($tender->selected_subcon_id && $tender->selected_subcon_id != $request->subcon_id) {
+        if ($tenders->selected_subcon_id && $tenders->selected_subcon_id != $request->subcon_id) {
 
-            $tender->update([
+            $tenders->update([
                 'selected_subcon_id' => $request->subcon_id,
                 'work_status' => 'assigned', // Back to the start
                 'progress_percent' => 0,     // Fresh start
                 'report_path' => null,       // Remove old reports
             ]);
 
-            return redirect()->route('admin.tenders.show', $tender->id)
+            return redirect()->route('admin.tenders.show', $tenders->id)
                 ->with('success', 'Project successfully reassigned to a new partner.');
         }
 
-        $tender->update([
+        $tenders->update([
             'selected_subcon_id' => $request->subcon_id,
             'work_status' => 'assigned',
         ]);
 
-        return redirect()->route('admin.tenders.show', $tender->id)
+        return redirect()->route('admin.tenders.show', $tenders->id)
             ->with('success', 'Partner assigned successfully.');
     }
 
     public function edit(int $id)
     {
-        $tender = Tender::findOrFail($id);
-        return view('admin.tenders.edit', compact('tender'));
+        $tenders = Tender::findOrFail($id);
+        return view('admin.tenders.edit', compact('tenders'));
 
     }
 
     public function update(Request $request, int $id)
     {
-        $tender = Tender::findOrFail($id);
+        $tenders = Tender::findOrFail($id);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'tender_ref_number' => 'required|string',
-            'cidb_grade' => 'required|array',
+            'required_grade' => 'required|array',
             'required_services' => 'required|string',
             'deadline' => 'required|date',
             'description' => 'required|string',
@@ -186,9 +186,9 @@ class TenderController extends Controller
             'status' => 'required|string',
         ]);
 
-        $validated['cidb_grade'] = implode(',', $request->cidb_grade);
+        $validated['required_grade'] = implode(',', $request->required_grade);
 
-        $tender->update($validated);
+        $tenders->update($validated);
 
         return redirect()->route('admin.tenders.index')->with('success', 'Tender updated successfully!');
     }
@@ -199,10 +199,10 @@ class TenderController extends Controller
         return redirect()->route('admin.tenders.index')->with('success', 'Tender deleted.');
     }
 
-    public function approveReport(Tender $tender)
+    public function approveReport(Tender $tenders)
     {
         // Force progress to 100 on approval
-        $tender->update([
+        $tenders->update([
             'work_status' => 'completed',
             'progress_percent' => 100,
             // Optional: keep the report_path so you can still see the files in the "Completed" project view
@@ -211,14 +211,14 @@ class TenderController extends Controller
         return redirect()->route('admin.tenders.index')->with('success', 'Project marked as Completed!');
     }
 
-    public function show(Tender $tender)
+    public function show(Tender $tenders)
     {
         $subcons = User::where('role', 'subcon')->get();
 
-        return view('admin.tenders.show', compact('tender', 'subcons'));
+        return view('admin.tenders.show', compact('tenders', 'subcons'));
     }
 
-    public function rejectFile(Request $request, Tender $tender)
+    public function rejectFile(Request $request, Tender $tenders)
     {
         $request->validate([
             'category' => 'required|string',
@@ -226,7 +226,7 @@ class TenderController extends Controller
             'feedback' => 'required|string',
         ]);
 
-        $reportData = $tender->report_path;
+        $reportData = $tenders->report_path;
 
 
         if (is_string($reportData)) {
@@ -248,7 +248,7 @@ class TenderController extends Controller
             $reportData['files'][$category][$index]['feedback'] = $request->feedback;
 
             // Save it back (Laravel handles the encoding if cast is in Model)
-            $tender->update([
+            $tenders->update([
                 'report_path' => $reportData
             ]);
 
@@ -258,15 +258,15 @@ class TenderController extends Controller
         return back()->with('error', 'File index not found in category.');
     }
 
-    public function reassign(Request $request, $id)
+    public function reassign(Request $request, int $id)
     {
         $request->validate([
             'new_subcon_id' => 'required|exists:users,id',
         ]);
 
-        $tender = \App\Models\Tender::findOrFail($id);
+        $tenders = \App\Models\Tender::findOrFail($id);
 
-        $tender->update([
+        $tenders->update([
             'selected_subcon_id' => $request->new_subcon_id,
             'work_status' => 'assigned',
         ]);

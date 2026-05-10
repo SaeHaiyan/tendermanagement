@@ -22,6 +22,7 @@ return new class extends Migration
         $table->year('year_established')->nullable();
         $table->json('cidb_grades')->nullable(); // To store multiple (G1, G2, etc.)
         $table->text('services_provided')->nullable();
+        $table->string('status')->default('pending');
     });
 }
 

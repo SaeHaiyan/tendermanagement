@@ -22,15 +22,15 @@ class ProfileUpdateRequest extends FormRequest
             'company_name' => ['nullable', 'string', 'max:255'],
             'company_address' => ['nullable', 'string'],
             'pic_name' => ['nullable', 'string', 'max:255'],
-            'phone_office' => ['nullable', 'string', 'max:20'],
-            'phone_pic' => ['nullable', 'string', 'max:20'],
+            'office_phone' => ['nullable', 'string', 'max:20'],
+            'pic_phone' => ['nullable', 'string', 'max:20'],
             'company_email' => ['nullable', 'email', 'max:255'],
             'cidb_reg_number' => ['nullable', 'string', 'max:100'],
             'ssm_number' => ['nullable', 'string', 'max:100'],
             'company_level' => ['nullable', 'string', 'max:100'],
-            'services' => ['nullable', 'string'],
+            'services_provided' => ['nullable', 'string'],
             'year_established' => ['nullable', 'integer'],
-            'grade' => ['nullable', 'array'], // Validate as an array
+            'cidb_grades' => ['nullable', 'array'], // Validate as an array
         ];
     }
 }
