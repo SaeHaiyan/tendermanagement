@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect()->route('dashboard');
+        return redirect()->route('subcon.dashboard');
     }
     return redirect()->route('login');
 });

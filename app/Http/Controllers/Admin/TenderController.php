@@ -117,10 +117,18 @@ class TenderController extends Controller
 
         try {
             $result = Gemini::generativeModel('gemini-2.0-flash')->generateContent($prompt);
-            $aiResponse = $result->text();
+            // Try to get the text from the response
+            if (!empty($result->candidates) && !empty($result->candidates[0]->content->parts)) {
+                $aiResponse = $result->candidates[0]->content->parts[0]->text;
+            } else {
+                $aiResponse = $result->text();
+            }
         } catch (\Exception $e) {
-            // ADD THIS LINE to log the exact error to storage/logs/laravel.log
-            Log::error('Gemini AI Error: ' . $e->getMessage());
+            Log::error('Gemini AI Error Full: ' . json_encode([
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'class' => get_class($e),
+            ]));
 
             $aiResponse = "🚨 AI Analysis currently unavailable. Please review matched subcontractors manually below.";
         }

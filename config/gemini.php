@@ -24,7 +24,7 @@ return [
     | If you need a specific base URL for the Gemini API, you can provide it here.
     | Otherwise, leave empty to use the default value.
     */
-    'base_url' => env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta', 'request_options'),
+    'base_url' => env('GEMINI_BASE_URL', ''),
 
     /*
     |--------------------------------------------------------------------------

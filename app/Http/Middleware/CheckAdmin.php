@@ -20,6 +20,6 @@ class CheckAdmin
         }
 
         // If not admin, redirect to the normal dashboard
-        return redirect()->route('dashboard')->with('error', 'You do not have admin access.');
+        return redirect()->route('subcon.dashboard')->with('error', 'You do not have admin access.');
     }
 }
