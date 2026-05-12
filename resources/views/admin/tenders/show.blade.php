@@ -204,8 +204,8 @@
                                     <h4 class="font-black text-slate-900 leading-tight truncate">{{ $tender->selectedSubcon->company_name ?? 'No Subcon' }}</h4>
                                     <p class="text-[10px] text-indigo-600 font-black uppercase tracking-tighter mt-1">
                                         Grade:
-                                        @if($tender->selectedSubcon && $tender->selectedSubcon->grade)
-                                            {{ is_array($tender->selectedSubcon->grade) ? implode(', ', $tender->selectedSubcon->grade) : $tender->selectedSubcon->grade }}
+                                        @if($tender->selectedSubcon && $tender->selectedSubcon->cidb_grades)
+                                            {{ is_array($tender->selectedSubcon->cidb_grades) ? implode(', ', $tender->selectedSubcon->cidb_grades) : $tender->selectedSubcon->cidb_grades }}
                                         @else
                                             N/A
                                         @endif

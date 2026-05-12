@@ -7,26 +7,28 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage; // Added for file deletion
 use App\Models\Tender;
 
-class DashboardController extends Controller
+class SubconController extends Controller
 {
     public function index(Request $request)
     {
         $user = Auth::user();
 
         if ($user->role === 'admin') return redirect()->route('admin.dashboard');
-        if ($user->status === 'pending') return view('pending-notice');
+        if ($user->status === 'pending') return view('subcon.pending-notice');
 
-        $activeProjects = Tender::where('selected_subcon_id', $user->id)
+        $activeProjects = Tender::query()
+            ->where('selected_subcon_id', $user->id)
             ->where('work_status', '!=', 'completed')
             ->latest()
             ->get();
 
-        $completedProjects = Tender::where('selected_subcon_id', $user->id)
+        $completedProjects = Tender::query()
+            ->where('selected_subcon_id', $user->id)
             ->where('work_status', 'completed')
             ->latest()
             ->get();
 
-        return view('dashboard', compact('activeProjects', 'completedProjects'));
+        return view('subcon.dashboard', compact('activeProjects', 'completedProjects'));
     }
 
     // 1. FOR NEW UPLOADS (Grouped by Category)

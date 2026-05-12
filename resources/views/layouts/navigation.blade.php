@@ -1,7 +1,7 @@
 <nav x-data="{ open: false }" class="bg-red-600 shadow-lg border-b border-red-700"> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20"> <div class="flex">
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ Auth::user()->role === 'admin' ? route('admin.dashboard') : route('dashboard') }}">
+                    <a href="{{ Auth::user()->role === 'admin' ? route('admin.dashboard') : route('subcon.dashboard') }}">
                         <img src="https://aito.com.my/wp-content/uploads/2022/08/aitonewlogowhite.png" class="block h-12 w-auto" alt="AITO Logo" /> </a>
                 </div>
 
@@ -14,7 +14,7 @@
                             {{ ('Tender Projects') }}
                         </x-nav-link>
                     @else
-                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-gray-100 font-bold uppercase tracking-wider text-sm border-t-4 border-transparent hover:border-gray-100 transition-all">
+                        <x-nav-link :href="route('subcon.dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-gray-100 font-bold uppercase tracking-wider text-sm border-t-4 border-transparent hover:border-gray-100 transition-all">
                             {{ ('Dashboard') }}
                         </x-nav-link>
                     @endif

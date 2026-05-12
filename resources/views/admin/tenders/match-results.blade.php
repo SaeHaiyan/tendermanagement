@@ -58,7 +58,7 @@
                             </div>
                         @else
                             <p class="text-indigo-100 text-sm mb-4 opacity-90">Based on the AI report, select the most suitable candidate to begin work.</p>
-                            <form action="{{ route('admin.tenders.assign', $tenders->id) }}" method="POST" class="space-y-4">
+                            <form action="{{ route('admin.tenders.assign', $tenders) }}" method="POST" class="space-y-4">
                                 @csrf
                                 @method('PATCH')
                                 <select name="subcon_id" required class="w-full rounded-xl border-none text-slate-900 text-sm font-bold focus:ring-2 focus:ring-indigo-300">
@@ -122,7 +122,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7 7-7"></path></svg>
                                     Return to List
                                 </a>
-                                <a href="{{ route('admin.tenders.match', [$tenders->id, 'force' => 'true']) }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-bold text-sm transition">
+                                <a href="{{ route('admin.tenders.match', [$tenders, 'force' => 'true']) }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-bold text-sm transition">
                                     Regenerate Analysis
                                 </a>
                             </div>

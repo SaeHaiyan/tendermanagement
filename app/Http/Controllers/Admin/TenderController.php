@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tender;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Gemini;
+use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Support\Facades\Log;
 
 class TenderController extends Controller
@@ -69,7 +69,8 @@ class TenderController extends Controller
 
         // 1. Fetch subcons that match the required grades
 
-        $matchedSubcons = User::where('role', 'subcon')
+        $matchedSubcons = User::query()
+            ->where('role', 'subcon')
             ->where('status', 'active')
             ->where(function($query) use ($requiredGradesArray) {
                 foreach ($requiredGradesArray as $cidb_grades) {
@@ -115,9 +116,7 @@ class TenderController extends Controller
                 - Risk/Note: [Concerns]";
 
         try {
-            $apiKey = config('gemini.api_key');
-            $client = Gemini::client($apiKey);
-            $result = $client->generativeModel(model: 'gemini-3-flash')->generateContent($prompt);
+            $result = Gemini::generativeModel('gemini-2.0-flash')->generateContent($prompt);
             $aiResponse = $result->text();
         } catch (\Exception $e) {
             // ADD THIS LINE to log the exact error to storage/logs/laravel.log
@@ -132,32 +131,31 @@ class TenderController extends Controller
     /**
      * Assign the project to the chosen subcontractor.
      */
-    public function assignSubcon(Request $request, Tender $tenders)
+    public function assignSubcon(Request $request, Tender $tender)
     {
         $request->validate([
             'subcon_id' => 'required|exists:users,id',
         ]);
 
-        if ($tenders->selected_subcon_id && $tenders->selected_subcon_id != $request->subcon_id) {
+        if ($tender->selected_subcon_id && $tender->selected_subcon_id != $request->subcon_id) {
 
-            $tenders->update([
+            $tender->update([
                 'selected_subcon_id' => $request->subcon_id,
                 'work_status' => 'assigned', // Back to the start
                 'progress_percent' => 0,     // Fresh start
                 'report_path' => null,       // Remove old reports
             ]);
 
-            return redirect()->route('admin.tenders.show', $tenders->id)
+            return redirect()->route('admin.tenders.show', $tender)
                 ->with('success', 'Project successfully reassigned to a new partner.');
         }
 
-        $tenders->update([
+        $tender->update([
             'selected_subcon_id' => $request->subcon_id,
             'work_status' => 'assigned',
         ]);
 
-        return redirect()->route('admin.tenders.show', $tenders->id)
-            ->with('success', 'Partner assigned successfully.');
+        return redirect()->route('admin.tenders.show', $tender);
     }
 
     public function edit(int $id)
@@ -213,7 +211,8 @@ class TenderController extends Controller
 
     public function show(Tender $tender)
     {
-        $subcons = User::where('role', 'subcon')
+        $subcons = User::query()
+            ->where('role', 'subcon')
             ->where('status', 'active')
             ->get();
 

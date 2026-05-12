@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\TenderController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SubconController;
 use App\Http\Middleware\CheckAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -26,12 +26,12 @@ Route::get('/logout-forced', function (Request $request) {
 
 // --- SUBCON DASHBOARD & PROGRESS ROUTES ---
 Route::middleware(['auth', 'check_status'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/history', [DashboardController::class, 'history'])->name('dashboard.history');
+    Route::get('/subcon/dashboard', [SubconController::class, 'index'])->name('subcon.dashboard');
+    Route::get('/subcon/dashboard/history', [SubconController::class, 'history'])->name('subcon.dashboard.history');
 
-    Route::patch('/dashboard/tenders/{tender}/progress', [DashboardController::class, 'updateProgress'])->name('subcon.tenders.update-progress');
-    Route::post('/dashboard/tenders/{tender}/upload-report', [DashboardController::class, 'uploadReport'])->name('subcon.tenders.upload-report');
-    Route::post('/tenders/{tender}/replace-file', [DashboardController::class, 'replaceFile'])->name('subcon.tenders.replace-file');
+    Route::patch('/subcon/dashboard/tenders/{tender}/progress', [SubconController::class, 'updateProgress'])->name('subcon.tenders.update-progress');
+    Route::post('/subcon/dashboard/tenders/{tender}/upload-report', [SubconController::class, 'uploadReport'])->name('subcon.tenders.upload-report');
+    Route::post('/tenders/{tender}/replace-file', [SubconController::class, 'replaceFile'])->name('subcon.tenders.replace-file');
 });
 
 // --- PROFILE ROUTES ---
@@ -60,8 +60,8 @@ Route::middleware(['auth', CheckAdmin::class])->group(function () {
     Route::patch('/admin/tenders/{tender}/assign', [TenderController::class, 'assignSubcon'])->name('admin.tenders.assign');
     Route::patch('/admin/tenders/{id}/reassign', [TenderController::class, 'reassign'])->name('admin.tenders.reassign');
     Route::get('/admin/tenders/{tender}', [TenderController::class, 'show'])->name('admin.tenders.show');
-    
-    Route::patch('/admin/tenders/{id}/approve', [DashboardController::class, 'approve'])->name('admin.tenders.approve');
+
+    Route::patch('/admin/tenders/{id}/approve', [SubconController::class, 'approve'])->name('admin.tenders.approve');
     Route::post('/admin/tenders/{tender}/reject-file', [TenderController::class, 'rejectFile'])->name('admin.tenders.reject-file');
 });
 
