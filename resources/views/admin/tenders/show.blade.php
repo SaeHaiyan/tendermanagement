@@ -236,7 +236,8 @@
                                                     <option value="" disabled selected>Choose a subcontractor</option>
                                                     @foreach($subcons as $subcon)
                                                         <option value="{{ $subcon->id }}" {{ $tender->selected_subcon_id == $subcon->id ? 'selected' : '' }}>
-                                                            {{ $subcon->company_name }} (Grade: {{ implode(', ', json_decode($subcon->cidb_grades, true)) }})
+                                                            {{ $subcon->company_name }} (Grade: {{ is_array($subcon->cidb_grades) ? implode(', ', $subcon->cidb_grades) : $subcon->cidb_grades }})
+                                                        </option>
                                                     @endforeach
                                                 </select>
 

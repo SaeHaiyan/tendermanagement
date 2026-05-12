@@ -59,8 +59,8 @@ Route::middleware(['auth', CheckAdmin::class])->group(function () {
     Route::get('/admin/tenders/{tender}/match', [TenderController::class, 'match'])->name('admin.tenders.match');
     Route::patch('/admin/tenders/{tender}/assign', [TenderController::class, 'assignSubcon'])->name('admin.tenders.assign');
     Route::patch('/admin/tenders/{id}/reassign', [TenderController::class, 'reassign'])->name('admin.tenders.reassign');
-
     Route::get('/admin/tenders/{tender}', [TenderController::class, 'show'])->name('admin.tenders.show');
+    
     Route::patch('/admin/tenders/{id}/approve', [DashboardController::class, 'approve'])->name('admin.tenders.approve');
     Route::post('/admin/tenders/{tender}/reject-file', [TenderController::class, 'rejectFile'])->name('admin.tenders.reject-file');
 });
