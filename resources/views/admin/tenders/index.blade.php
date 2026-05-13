@@ -25,21 +25,127 @@
                     {{ ('Manage project tenders and assign to subcontractors.') }}
                 </p>
             </div>
-            <a href="{{ route('admin.tenders.create') }}" class="inline-flex items-center bg-red-600 text-white px-6 py-2.5 rounded shadow-lg hover:bg-red-700 transition-all font-bold text-sm uppercase tracking-widest">
+            <a href="{{ route('admin.tenders.create') }}" class="inline-flex items-center bg-red-600 text-white px-6 py-3 rounded shadow-lg hover:bg-red-700 transition-all font-bold text-sm uppercase tracking-widest">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Post New Tender
             </a>
         </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+    <form method="GET" action="{{ url()->current() }}">
+
+        <div class="p-5 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-100">
+            <div class="relative w-full md:w-96">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search tender title, description or reference..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-700 placeholder-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all">
+                <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg>
+            </div>
+
+            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                @if(request()->anyFilled(['search', 'status', 'grade']))
+                    <a href="{{ route('admin.tenders.index') }}" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition">
+                        Reset Filters
+                    </a>
+                @endif
+                <a href="{{ route('admin.tenders.export', array_merge(request()->query(), ['format' => 'excel'])) }}" class="flex items-center gap-2 border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
+                    Excel
+                </a>
+                <a href="{{ route('admin.tenders.export', array_merge(request()->query(), ['format' => 'pdf'])) }}" class="flex items-center gap-2 border border-slate-200 hover:border-slate-900 hover:bg-slate-950 hover:text-white px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
+                    PDF
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-slate-50/50 px-5 py-4 grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+
+            <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Project Status</label>
+                <select name="status" onchange="this.form.submit()" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 focus:border-indigo-500 focus:ring-0 cursor-pointer">
+                    <option value="">All Tenders</option>
+                    <option value="open" {{ request('status') === 'open' ? 'selected' : '' }}>Open</option>
+                    <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                    <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
+                    <option value="under_review" {{ request('status') === 'under_review' ? 'selected' : '' }}>Review Pending</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Required CIDB Grade</label>
+                <select name="grade" onchange="this.form.submit()" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 focus:border-indigo-500 focus:ring-0 cursor-pointer">
+                    <option value="">All Grades</option>
+                    @foreach(['G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7'] as $g)
+                        <option value="{{ $g }}" {{ request('grade') === $g ? 'selected' : '' }}>{{ $g }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Sort Criteria</label>
+                <select name="sort_by" onchange="this.form.submit()" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 focus:border-indigo-500 focus:ring-0 cursor-pointer">
+                    <option value="created_at" {{ request('sort_by') === 'created_at' ? 'selected' : '' }}>Newest Published</option>
+                    <option value="title" {{ request('sort_by') === 'title' ? 'selected' : '' }}>Project Title</option>
+                    <option value="deadline" {{ request('sort_by') === 'deadline' ? 'selected' : '' }}>Deadline Date</option>
+                    <option value="work_status" {{ request('sort_by') === 'work_status' ? 'selected' : '' }}>Work Status</option>
+                    <option value="required_grade" {{ request('sort_by') === 'required_grade' ? 'selected' : '' }}>CIDB Grade</option>
+                    <option value="selected_subcon" {{ request('sort_by') === 'selected_subcon' ? 'selected' : '' }}>Assigned Subcontractor</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Directional Order</label>
+                <div class="flex gap-2">
+                    <select name="sort_dir" onchange="this.form.submit()" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 focus:border-indigo-500 focus:ring-0 cursor-pointer">
+                        <option value="desc" {{ request('sort_dir') === 'desc' ? 'selected' : '' }}>Descending &darr;</option>
+                        <option value="asc" {{ request('sort_dir') === 'asc' ? 'selected' : '' }}>Ascending &uarr;</option>
+                    </select>
+                    <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-widest text-[10px] transition shadow-md">
+                        Apply
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
 
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-200 border-t-4 border-t-red-600">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">Project Details</th>
-                            <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">Assignee & Progress</th>
-                            <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">Deadline</th>
-                            <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">Status</th>
+                            <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">
+                                <a href="{{ route('admin.tenders.index', array_merge(request()->except('page'), ['sort_by' => 'title', 'sort_dir' => request('sort_by') === 'title' && request('sort_dir') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center gap-2">
+                                    Project Details
+                                    @if(request('sort_by') === 'title')
+                                        <span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>
+                                    @endif
+                                </a>
+                            </th>
+                            <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">
+                                <a href="{{ route('admin.tenders.index', array_merge(request()->except('page'), ['sort_by' => 'selected_subcon', 'sort_dir' => request('sort_by') === 'selected_subcon' && request('sort_dir') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center gap-2">
+                                    Assignee & Progress
+                                    @if(request('sort_by') === 'selected_subcon')
+                                        <span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>
+                                    @endif
+                                </a>
+                            </th>
+                            <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">
+                                <a href="{{ route('admin.tenders.index', array_merge(request()->except('page'), ['sort_by' => 'deadline', 'sort_dir' => request('sort_by') === 'deadline' && request('sort_dir') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center gap-2">
+                                    Deadline
+                                    @if(request('sort_by') === 'deadline')
+                                        <span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>
+                                    @endif
+                                </a>
+                            </th>
+                            <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">
+                                <a href="{{ route('admin.tenders.index', array_merge(request()->except('page'), ['sort_by' => 'work_status', 'sort_dir' => request('sort_by') === 'work_status' && request('sort_dir') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center gap-2">
+                                    Status
+                                    @if(request('sort_by') === 'work_status')
+                                        <span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>
+                                    @endif
+                                </a>
+                            </th>
                             <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest text-center">Management</th>
                         </tr>
                     </thead>

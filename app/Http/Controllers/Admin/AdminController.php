@@ -7,15 +7,116 @@ use App\Models\User;
 use App\Models\Tender;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Dompdf\Dompdf;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class AdminController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::all();
+        $users = $this->buildSubconQuery($request)
+            ->orderBy($this->resolveSortBy($request), $this->resolveSortDir($request))
+            ->get();
+
         $projects = Tender::with('selectedSubcon')->latest()->get();
 
         return view('admin.dashboard', compact('users', 'projects'));
+    }
+
+    public function exportUsers(Request $request)
+    {
+        $format = $request->query('format', 'excel');
+        $users = $this->buildSubconQuery($request)
+            ->orderBy($this->resolveSortBy($request), $this->resolveSortDir($request))
+            ->get();
+
+        if ($format === 'pdf') {
+            return $this->exportUsersPdf($users);
+        }
+
+        return $this->exportUsersExcel($users);
+    }
+
+    protected function buildSubconQuery(Request $request)
+    {
+        $query = User::query()->where('role', 'subcon');
+
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('company_name', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('services_provided', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->query('status'));
+        }
+
+        if ($request->filled('grade')) {
+            $query->where('cidb_grades', 'like', "%{$request->query('grade')}%");
+        }
+
+        return $query;
+    }
+
+    protected function resolveSortBy(Request $request): string
+    {
+        $allowedSorts = ['company_name', 'name', 'cidb_grades', 'status', 'created_at'];
+        $sortBy = $request->query('sort_by', 'created_at');
+        return in_array($sortBy, $allowedSorts, true) ? $sortBy : 'created_at';
+    }
+
+    protected function resolveSortDir(Request $request): string
+    {
+        return $request->query('sort_dir') === 'asc' ? 'asc' : 'desc';
+    }
+
+    protected function exportUsersExcel($users)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Subcontractors');
+
+        $headers = ['Company Name', 'PIC', 'Email', 'CIDB Grade', 'Status', 'Services', 'Registered'];
+        foreach ($headers as $col => $header) {
+            $sheet->setCellValue(chr(65 + $col) . '1', $header);
+        }
+
+        foreach ($users as $index => $user) {
+            $row = $index + 2;
+            $sheet->setCellValue('A' . $row, $user->company_name);
+            $sheet->setCellValue('B' . $row, $user->name);
+            $sheet->setCellValue('C' . $row, $user->email);
+            $sheet->setCellValue('D' . $row, is_array($user->cidb_grades) ? implode(', ', $user->cidb_grades) : $user->cidb_grades);
+            $sheet->setCellValue('E' . $row, $user->status);
+            $sheet->setCellValue('F' . $row, is_array($user->services_provided) ? implode(', ', $user->services_provided) : $user->services_provided);
+            $sheet->setCellValue('G' . $row, optional($user->created_at)->format('Y-m-d'));
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'subcontractors-report-' . now()->format('Ymd-His') . '.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'xlsx');
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+    }
+
+    protected function exportUsersPdf($users)
+    {
+        $html = view('admin.exports.users-pdf', compact('users'))->render();
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        return response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="subcontractors-report-' . now()->format('Ymd-His') . '.pdf"',
+        ]);
     }
 
     /**

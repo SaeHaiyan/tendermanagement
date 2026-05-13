@@ -46,11 +46,13 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', CheckAdmin::class])->group(function () {
 
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard/export', [AdminController::class, 'exportUsers'])->name('admin.dashboard.export');
     Route::get('/admin/subcon/{id}', [AdminController::class, 'show'])->name('admin.subcon.show');
     Route::patch('/admin/subcon/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.subcon.update-status');
     Route::delete('/admin/subcon/{id}', [AdminController::class, 'destroy'])->name('admin.subcon.destroy');
 
     Route::get('/admin/tenders', [TenderController::class, 'index'])->name('admin.tenders.index');
+    Route::get('/admin/tenders/export', [TenderController::class, 'export'])->name('admin.tenders.export');
     Route::get('/admin/tenders/create', [TenderController::class, 'create'])->name('admin.tenders.create');
     Route::post('/admin/tenders', [TenderController::class, 'store'])->name('admin.tenders.store');
     Route::get('/admin/tenders/{tender}/edit', [TenderController::class, 'edit'])->name('admin.tenders.edit');

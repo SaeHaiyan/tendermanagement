@@ -8,16 +8,142 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Support\Facades\Log;
+use Dompdf\Dompdf;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TenderController extends Controller
 {
     /**
      * Display a listing of the tenders.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tenders = Tender::latest('created_at')->get();
-        return view('admin.tenders.index', compact('tenders'));
+        $allowedSorts = ['title', 'deadline', 'work_status', 'required_grade', 'created_at', 'selected_subcon'];
+        $sortBy = in_array($request->query('sort_by'), $allowedSorts) ? $request->query('sort_by') : 'created_at';
+        $sortDir = $request->query('sort_dir') === 'asc' ? 'asc' : 'desc';
+
+        $query = Tender::with('selectedSubcon');
+
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('tender_ref_number', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('work_status', $request->query('status'));
+        }
+
+        if ($request->filled('grade')) {
+            $query->where('required_grade', 'like', "%{$request->query('grade')}%");
+        }
+
+        if ($sortBy === 'selected_subcon') {
+            $query->leftJoin('users', 'users.id', '=', 'tenders.selected_subcon_id')
+                ->select('tenders.*')
+                ->orderBy('users.company_name', $sortDir);
+        } else {
+            $query->orderBy($sortBy, $sortDir);
+        }
+
+        $tenders = $query->get();
+
+        return view('admin.tenders.index', compact('tenders', 'sortBy', 'sortDir'));
+    }
+
+    public function export(Request $request)
+    {
+        $format = strtolower($request->query('format', 'excel')) === 'pdf' ? 'pdf' : 'excel';
+        $allowedSorts = ['title', 'deadline', 'work_status', 'required_grade', 'created_at', 'selected_subcon'];
+        $sortBy = in_array($request->query('sort_by'), $allowedSorts) ? $request->query('sort_by') : 'created_at';
+        $sortDir = $request->query('sort_dir') === 'asc' ? 'asc' : 'desc';
+
+        $query = $this->buildTenderQuery($request);
+
+        if ($sortBy === 'selected_subcon') {
+            $query->leftJoin('users', 'users.id', '=', 'tenders.selected_subcon_id')
+                ->select('tenders.*')
+                ->orderBy('users.company_name', $sortDir);
+        } else {
+            $query->orderBy($sortBy, $sortDir);
+        }
+
+        $tenders = $query->get();
+
+        return $format === 'pdf' ? $this->exportTendersPdf($tenders) : $this->exportTendersExcel($tenders);
+    }
+
+    protected function buildTenderQuery(Request $request)
+    {
+        $query = Tender::with('selectedSubcon');
+
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('tender_ref_number', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('work_status', $request->query('status'));
+        }
+
+        if ($request->filled('grade')) {
+            $query->where('required_grade', 'like', "%{$request->query('grade')}%");
+        }
+
+        return $query;
+    }
+
+    protected function exportTendersExcel($tenders)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Tenders');
+
+        $headers = ['Title', 'Reference', 'Grade', 'Services', 'Deadline', 'Status', 'Assignee', 'Progress'];
+        foreach ($headers as $index => $header) {
+            $sheet->setCellValue(chr(65 + $index) . '1', $header);
+        }
+
+        foreach ($tenders as $idx => $tender) {
+            $row = $idx + 2;
+            $sheet->setCellValue('A' . $row, $tender->title);
+            $sheet->setCellValue('B' . $row, $tender->tender_ref_number);
+            $sheet->setCellValue('C' . $row, $tender->required_grade);
+            $sheet->setCellValue('D' . $row, $tender->required_services);
+            $sheet->setCellValue('E' . $row, optional($tender->deadline)->format('Y-m-d'));
+            $sheet->setCellValue('F' . $row, $tender->work_status);
+            $sheet->setCellValue('G' . $row, optional($tender->selectedSubcon)->company_name);
+            $sheet->setCellValue('H' . $row, $tender->progress_percent . '%');
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'tenders-report-' . now()->format('Ymd-His') . '.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'xlsx');
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+    }
+
+    protected function exportTendersPdf($tenders)
+    {
+        $html = view('admin.exports.tenders-pdf', compact('tenders'))->render();
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        return response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="tenders-report-' . now()->format('Ymd-His') . '.pdf"',
+        ]);
     }
 
     /**
@@ -127,7 +253,7 @@ class TenderController extends Controller
             Log::error('Gemini AI Error Full: ' . json_encode([
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
-                'class' => get_class($e), 
+                'class' => get_class($e),
             ]));
 
             $aiResponse = "🚨 AI Analysis currently unavailable. Please review matched subcontractors manually below.";
