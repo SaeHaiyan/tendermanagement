@@ -127,7 +127,7 @@ class TenderController extends Controller
             Log::error('Gemini AI Error Full: ' . json_encode([
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
-                'class' => get_class($e),
+                'class' => get_class($e), 
             ]));
 
             $aiResponse = "🚨 AI Analysis currently unavailable. Please review matched subcontractors manually below.";

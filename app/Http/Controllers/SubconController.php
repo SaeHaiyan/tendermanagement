@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage; // Added for file deletion
+use Illuminate\Support\Facades\Storage;
 use App\Models\Tender;
 
 class SubconController extends Controller
@@ -31,59 +31,79 @@ class SubconController extends Controller
         return view('subcon.dashboard', compact('activeProjects', 'completedProjects'));
     }
 
-    // 1. FOR NEW UPLOADS (Grouped by Category)
-    public function updateProgress(Request $request, Tender $tender)
+    public function manage(int $id)
     {
-        $request->validate([
-            'category_type' => 'required|string',
-            'documents' => 'required|array',
-            'documents.*' => 'mimes:pdf,jpg,png|max:10240',
-        ]);
+        // Fixed: Use Tender model instead of Project
+        $project = Tender::findOrFail($id);
 
-        // Start with existing data or empty structure
-        $reportData = $tender->report_path ?? ['files' => []];
-        $category = $request->category_type;
+        $reportData = is_array($project->report_path)
+            ? $project->report_path
+            : json_decode($project->report_path ?? '', true) ?? [];
 
-        if ($request->hasFile('documents')) {
-            foreach ($request->file('documents') as $file) {
-                $path = $file->store('reports', 'public');
+        $submittedFiles = $reportData['files'] ?? [];
+
+        $hasRejections = false;
+        foreach($submittedFiles as $cat => $items) {
+            foreach($items as $f) {
+                if(isset($f['status']) && $f['status'] === 'rejected') $hasRejections = true;
+            }
+        }
+
+        return view('subcon.manage-project', compact('project', 'submittedFiles', 'hasRejections'));
+    }
+
+    /**
+     * Handle initial or additional file uploads for a specific category
+     */
+    public function updateProgress(Request $request, int $id)
+    {
+        $project = Tender::findOrFail($id);
+        $category = $request->input('category_type');
+        $description = $request->input('description'); // Capture the description
+
+        $reportData = $project->report_path ?? ['files' => []];
+
+        if($request->hasFile('documents')) {
+            foreach($request->file('documents') as $file) {
+                $path = $file->store('tenders/' . $project->id, 'public');
 
                 $reportData['files'][$category][] = [
                     'path' => $path,
                     'status' => 'pending',
                     'feedback' => null,
+                    'description' => $description, // Store the description here
                     'uploaded_at' => now()->toDateTimeString()
                 ];
             }
         }
 
-        $tender->report_path = $reportData;
-        $tender->save();
+        $project->report_path = $reportData;
+        $project->progress_percent = $this->calculateProgress($reportData);
+        $project->save();
 
-        return back()->with('success', 'Files uploaded successfully!');
+        return back()->with('success', 'Files and description saved successfully.');
     }
 
-    // 2. THE MISSING LINK: REPLACE REJECTED FILE
-    public function replaceFile(Request $request, Tender $tender)
+    /**
+     * Replace a specific file that was rejected
+     */
+    public function replaceFile(Request $request, int $id)
     {
-        $request->validate([
-            'new_file' => 'required|mimes:pdf,jpg,png|max:10240',
-            'category' => 'required|string',
-            'file_index' => 'required|integer',
-        ]);
+        $project = Tender::findOrFail($id);
+        $category = $request->input('category');
+        $index = $request->input('file_index');
 
-        $reportData = $tender->report_path;
-        $category = $request->category;
-        $index = $request->file_index;
+        $reportData = $project->report_path;
 
-        if (isset($reportData['files'][$category][$index])) {
-            // Delete old file from storage
-            Storage::disk('public')->delete($reportData['files'][$category][$index]['path']);
+        if($request->hasFile('replacement')) {
+            // Delete old file if it exists to save storage
+            if (isset($reportData['files'][$category][$index]['path'])) {
+                Storage::disk('public')->delete($reportData['files'][$category][$index]['path']);
+            }
 
-            // Store new file
-            $path = $request->file('new_file')->store('reports', 'public');
+            $path = $request->file('replacement')->store('tenders/' . $project->id, 'public');
 
-            // Update array
+            // Swap the data at the specific index
             $reportData['files'][$category][$index] = [
                 'path' => $path,
                 'status' => 'pending',
@@ -91,26 +111,34 @@ class SubconController extends Controller
                 'uploaded_at' => now()->toDateTimeString()
             ];
 
-            $tender->report_path = $reportData;
-            $tender->save();
-
-            return back()->with('success', 'File replaced successfully!');
+            $project->report_path = $reportData;
+            $project->progress_percent = $this->calculateProgress($reportData);
+            $project->save();
         }
 
-        return back()->with('error', 'Could not find the file to replace.');
+        return back()->with('success', 'Replacement file submitted for review.');
     }
 
-        public function approve(int $id)
-        {
-            // Find the tender by ID
-            $tender = \App\Models\Tender::findOrFail($id);
+    /**
+     * Internal logic to determine progress percentage
+     */
+    private function calculateProgress(array $reportData)
+    {
+        $categories = ['site_photos', 'financial_docs', 'invoices'];
+        $completedCount = 0;
 
-            // Update status to completed and progress to 100%
-            $tender->update([
-                'work_status' => 'completed',
-                'progress_percent' => 100
-            ]);
+        foreach($categories as $cat) {
+            if(!empty($reportData['files'][$cat])) {
+                // Category counts as 'done' if there is at least one file that isn't rejected
+                $hasValidFile = collect($reportData['files'][$cat])->contains(function($f) {
+                    return $f['status'] !== 'rejected';
+                });
 
-            return redirect()->back()->with('success', 'Project approved and marked as completed!');
+                if($hasValidFile) $completedCount++;
+            }
         }
+
+        // Returns 0, 33, 66, or 100 based on 3 categories
+        return round(($completedCount / count($categories)) * 100);
+    }
 }

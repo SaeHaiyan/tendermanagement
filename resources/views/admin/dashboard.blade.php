@@ -54,9 +54,9 @@
                                 </td>
 
                                 <td class="px-8 py-6 text-center">
-                                    @if($user->grade)
+                                    @if($user->cidb_grades)
                                         <span class="inline-block bg-gray-100 text-gray-800 text-sm font-bold px-3 py-1 rounded border border-gray-200">
-                                            {{ is_array($user->grade) ? implode(', ', $user->grade) : $user->grade }}
+                                            {{ is_array($user->cidb_grades) ? implode(', ', $user->cidb_grades) : $user->cidb_grades }}
                                         </span>
                                     @else
                                         <span class="text-gray-300 italic text-sm">N/A</span>
@@ -83,7 +83,7 @@
 
                                 <td class="px-8 py-6">
                                     <p class="text-sm text-gray-600 italic max-w-xs">
-                                        "{{ Str::limit($user->services ?? 'No services listed', 40) }}"
+                                        "{{ Str::limit($user->services_provided ?? 'No services listed', 40) }}"
                                     </p>
                                 </td>
 

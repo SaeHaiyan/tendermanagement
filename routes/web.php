@@ -27,6 +27,7 @@ Route::get('/logout-forced', function (Request $request) {
 // --- SUBCON DASHBOARD & PROGRESS ROUTES ---
 Route::middleware(['auth', 'check_status'])->group(function () {
     Route::get('/subcon/dashboard', [SubconController::class, 'index'])->name('subcon.dashboard');
+    Route::get('/subcon/tenders/{project}/manage', [SubconController::class, 'manage'])->name('subcon.tenders.manage');
     Route::get('/subcon/dashboard/history', [SubconController::class, 'history'])->name('subcon.dashboard.history');
 
     Route::patch('/subcon/dashboard/tenders/{tender}/progress', [SubconController::class, 'updateProgress'])->name('subcon.tenders.update-progress');

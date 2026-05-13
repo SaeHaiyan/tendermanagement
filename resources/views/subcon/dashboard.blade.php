@@ -106,64 +106,7 @@
                                     </div>
                                 </div>
 
-                                {{-- UPLOAD COLUMN --}}
-                                <div class="lg:w-80 lg:border-l border-slate-100 lg:pl-8 space-y-6">
 
-                                    {{-- SECTION 1: SITE PHOTOS --}}
-                                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                                        <label class="text-[10px] font-black text-slate-700 uppercase tracking-widest mb-3 block">Site Progress Photos</label>
-                                        @if(isset($submittedFiles['site_photos']) && !collect($submittedFiles['site_photos'])->contains('status', 'rejected'))
-                                            <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl text-[10px] font-bold flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
-                                                Uploaded ({{ count($submittedFiles['site_photos']) }})
-                                            </div>
-                                        @else
-                                            <form action="{{ route('subcon.tenders.update-progress', $project->id) }}" method="POST" enctype="multipart/form-data">
-                                                @csrf @method('PATCH')
-                                                <input type="hidden" name="category_type" value="site_photos">
-                                                <input type="file" name="documents[]" multiple class="w-full text-[10px] mb-3">
-                                                <button class="w-full py-2 bg-indigo-600 text-white text-[10px] font-black uppercase rounded-lg">Upload Photos</button>
-                                            </form>
-                                        @endif
-                                    </div>
-
-                                    {{-- SECTION 2: FINANCIALS --}}
-                                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                                        <label class="text-[10px] font-black text-slate-700 uppercase tracking-widest mb-3 block">Financial Claims</label>
-                                        @if(isset($submittedFiles['financial_docs']) && !collect($submittedFiles['financial_docs'])->contains('status', 'rejected'))
-                                            <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl text-[10px] font-bold flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
-                                                Uploaded
-                                            </div>
-                                        @else
-                                            <form action="{{ route('subcon.tenders.update-progress', $project->id) }}" method="POST" enctype="multipart/form-data">
-                                                @csrf @method('PATCH')
-                                                <input type="hidden" name="category_type" value="financial_docs">
-                                                <input type="file" name="documents[]" multiple class="w-full text-[10px] mb-3">
-                                                <button class="w-full py-2 bg-emerald-600 text-white text-[10px] font-black uppercase rounded-lg">Submit Financials</button>
-                                            </form>
-                                        @endif
-                                    </div>
-
-                                    {{-- SECTION 3: INVOICES --}}
-                                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                                        <label class="text-[10px] font-black text-slate-700 uppercase tracking-widest mb-3 block">Invoices</label>
-                                        @if(isset($submittedFiles['invoices']) && !collect($submittedFiles['invoices'])->contains('status', 'rejected'))
-                                            <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl text-[10px] font-bold flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
-                                                Uploaded
-                                            </div>
-                                        @else
-                                            <form action="{{ route('subcon.tenders.update-progress', $project->id) }}" method="POST" enctype="multipart/form-data">
-                                                @csrf @method('PATCH')
-                                                <input type="hidden" name="category_type" value="invoices">
-                                                <input type="file" name="documents[]" multiple class="w-full text-[10px] mb-3">
-                                                <button class="w-full py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-lg">Submit Invoices</button>
-                                            </form>
-                                        @endif
-                                    </div>
-
-                                </div>
                             </div>
                         </div>
                     @empty
