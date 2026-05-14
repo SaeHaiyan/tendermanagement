@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Dompdf\Dompdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -144,6 +145,72 @@ class TenderController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="tenders-report-' . now()->format('Ymd-His') . '.pdf"',
         ]);
+    }
+
+    public function exportSingle(Request $request, int $id)
+    {
+        // Fetch tender with its assigned subcontractor records
+        $tender = Tender::with('selectedSubcon')->findOrFail($id);
+        $format = $request->get('format', 'pdf');
+
+        // Decode file submissions tracking data safely
+        $reportData = is_array($tender->report_path)
+            ? $tender->report_path
+            : json_decode($tender->report_path ?? '', true) ?? [];
+        $categories = $reportData['files'] ?? [];
+
+        if ($format === 'excel') {
+            // --- 1. QUICK EXCEL DOWNLOAD (CSV Format) ---
+            $fileName = 'Tender_Status_Report_' . $tender->id . '_' . date('Ymd') . '.csv';
+
+            $headers = [
+                "Content-type"        => "text/csv",
+                "Content-Disposition" => "attachment; filename=$fileName",
+                "Pragma"              => "no-cache",
+                "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+                "Expires"             => "0"
+            ];
+
+            $callback = function() use ($tender, $categories) {
+                $file = fopen('php://output', 'w');
+
+                // Corporate Title Headers
+                fputcsv($file, ['AITOTENDER PROJECT MONITORING REPORT']);
+                fputcsv($file, ['Generated:', date('Y-m-d H:i:s')]);
+                fputcsv($file, []); // Empty spacing row
+
+                // Core Tender Meta Metadata Block
+                fputcsv($file, ['Project Title', $tender->title]);
+                fputcsv($file, ['Work Status', Str::upper($tender->work_status)]);                fputcsv($file, ['Progress Percent', $tender->progress_percent . '%']);
+                fputcsv($file, ['Required Grade', 'Grade ' . $tender->required_grade]);
+                fputcsv($file, ['Partner Subcon', $tender->selectedSubcon->company_name ?? 'None Assigned']);
+                fputcsv($file, []);
+
+                // Submissions Breakdown Section Headers
+                fputcsv($file, ['Submission Type', 'Item Index', 'Storage Path Reference', 'Status', 'Reviewer Feedback']);
+
+                $labels = ['site_photos' => 'Site Progress Photos', 'financial_docs' => 'Financial Claims', 'invoices' => 'Tax Invoices'];
+                foreach ($labels as $key => $label) {
+                    foreach ($categories[$key] ?? [] as $index => $subFile) {
+                        fputcsv($file, [
+                            $label,
+                            'Submission #' . ($index + 1),
+                            is_array($subFile) ? ($subFile['path'] ?? '') : $subFile,
+                            is_array($subFile) ? ($subFile['status'] ?? 'pending') : 'pending',
+                            is_array($subFile) ? ($subFile['feedback'] ?? '') : ''
+                        ]);
+                    }
+                }
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        }
+
+        // --- 2. QUICK HTML/PDF OVERVIEW PRINT ---
+        // If you haven't installed 'barryvdh/laravel-dompdf' yet, this returns a gorgeous,
+        // print-ready document window utilizing your AITO logo template which pops open a save prompt.
+        return view('admin.exports.single-tender', compact('tender', 'categories'));
     }
 
     /**

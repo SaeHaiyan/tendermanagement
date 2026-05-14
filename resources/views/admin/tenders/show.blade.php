@@ -24,18 +24,34 @@
             @endif
 
             {{-- Header --}}
-            <div class="mb-8">
-                <nav class="flex text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">
-                    <a href="{{ route('admin.tenders.index') }}" class="hover:text-indigo-600 transition">Tender Board</a>
-                    <span class="mx-2">/</span>
-                    <span class="text-slate-600">Project Monitoring</span>
-                </nav>
-                <h2 class="text-3xl font-black text-slate-900 tracking-tight flex items-center">
-                    {{ $tender->title }}
-                    @if($tender->work_status === 'completed')
-                        <svg class="w-6 h-6 ml-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    @endif
-                </h2>
+            <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <nav class="flex text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">
+                        <a href="{{ route('admin.tenders.index') }}" class="hover:text-indigo-600 transition">Tender Board</a>
+                        <span class="mx-2">/</span>
+                        <span class="text-slate-600">Project Monitoring</span>
+                    </nav>
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight flex items-center">
+                        {{ $tender->title }}
+                        @if($tender->work_status === 'completed')
+                            <svg class="w-6 h-6 ml-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                        @endif
+                    </h2>
+                </div>
+
+                {{-- DYNAMIC SINGLE TENDER DOCUMENT GENERATION UTILITIES --}}
+                <div class="flex items-center gap-2 self-start md:self-auto">
+                    <a href="{{ route('admin.tenders.export-single', ['id' => $tender->id, 'format' => 'excel']) }}"
+                       class="flex items-center gap-2 border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 px-4 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition shadow-sm bg-white">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
+                        Export Sheet
+                    </a>
+                    <a href="{{ route('admin.tenders.export-single', ['id' => $tender->id, 'format' => 'pdf']) }}"
+                       class="flex items-center gap-2 border border-slate-200 hover:border-slate-900 hover:bg-slate-950 hover:text-white px-4 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition shadow-sm bg-white">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
+                        Print Summary
+                    </a>
+                </div>
             </div>
 
             {{-- Real-time Stats Grid --}}
