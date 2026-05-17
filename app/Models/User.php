@@ -35,6 +35,7 @@ class User extends Authenticatable
         'year_established',
         'cidb_grades',
         'services_provided',
+        'pending_documents',
     ];
 
 
@@ -60,6 +61,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'cidb_grades' => 'array',
+            'pending_documents' => 'array',
         ];
     }
 }

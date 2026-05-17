@@ -126,6 +126,32 @@
                     </div>
                 </div>
 
+                @if(!empty($subcon->pending_documents))
+                    <div class="px-8 pb-8">
+                        <h4 class="text-xs font-black text-red-600 uppercase tracking-widest mb-4">Pending Account Documents</h4>
+                        <div class="space-y-4">
+                            @foreach($subcon->pending_documents as $document)
+                                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                        <div>
+                                            <p class="font-semibold text-gray-900">{{ $document['original_name'] ?? basename($document['path']) }}</p>
+                                            <p class="text-xs text-gray-500">Uploaded: {{ \Illuminate\Support\Carbon::parse($document['uploaded_at'])->format('d M Y, H:i') }}</p>
+                                        </div>
+                                        <span class="text-xs uppercase tracking-widest font-black {{ $document['status'] === 'approved' ? 'text-emerald-600' : ($document['status'] === 'rejected' ? 'text-red-600' : 'text-amber-500') }}">
+                                            {{ $document['status'] ?? 'pending' }}
+                                        </span>
+                                    </div>
+                                    <div class="mt-3">
+                                        <a href="{{ asset('storage/' . $document['path']) }}" target="_blank" class="text-red-600 hover:text-red-800 text-sm font-semibold">
+                                            View / Download
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <div class="bg-gray-50 px-8 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest border-t">
                     Registered on: {{ $subcon->created_at->format('d M Y, h:i A') }}
                 </div>

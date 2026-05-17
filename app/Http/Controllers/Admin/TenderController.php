@@ -233,11 +233,11 @@ class TenderController extends Controller
             'required_services' => 'required|string',
             'deadline' => 'required|date',
             'description' => 'required|string',
-            'estimated_budget' => 'nullable|numeric', // Add this
-            'priority_level' => 'required|string',    // Add this
-            'years_experience_required' => 'nullable|integer', // Add this
-            'site_location' => 'nullable|string',     // Add this
-            'site_visit_date' => 'nullable|date',     // Add this
+            'estimated_budget' => 'nullable|numeric',
+            'priority_level' => 'required|string',
+            'years_experience_required' => 'nullable|integer',
+            'site_location' => 'nullable|string',
+            'site_visit_date' => 'nullable|date',
         ]);
 
         // Format the data
@@ -309,8 +309,7 @@ class TenderController extends Controller
                 - Risk/Note: [Concerns]";
 
         try {
-            $result = Gemini::generativeModel('gemini-2.0-flash')->generateContent($prompt);
-            // Try to get the text from the response
+            $result = Gemini::generativeModel('gemini-3.1-pro-preview')->generateContent($prompt);
             if (!empty($result->candidates) && !empty($result->candidates[0]->content->parts)) {
                 $aiResponse = $result->candidates[0]->content->parts[0]->text;
             } else {
@@ -323,8 +322,7 @@ class TenderController extends Controller
                 'class' => get_class($e),
             ]));
 
-            $aiResponse = "🚨 AI Analysis currently unavailable. Please review matched subcontractors manually below.";
-        }
+            $aiResponse = "🚨 ERROR: " . $e->getMessage() . " | Code: " . $e->getCode() . " | Class: " . get_class($e);        }
 
         return view('admin.tenders.match-results', compact('tenders', 'aiResponse', 'matchedSubcons'));
     }

@@ -31,6 +31,33 @@ class SubconController extends Controller
         return view('subcon.dashboard', compact('activeProjects', 'completedProjects'));
     }
 
+    public function uploadPendingDocuments(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'documents' => 'required|array|min:1',
+            'documents.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:5120',
+        ]);
+
+        $pendingDocuments = $user->pending_documents ?? [];
+
+        foreach ($request->file('documents') as $file) {
+            $path = $file->store('pending-account-documents/' . $user->id, 'public');
+            $pendingDocuments[] = [
+                'path' => $path,
+                'original_name' => $file->getClientOriginalName(),
+                'status' => 'pending',
+                'uploaded_at' => now()->toDateTimeString(),
+            ];
+        }
+
+        $user->pending_documents = $pendingDocuments;
+        $user->save();
+
+        return back()->with('success', 'Your documents were uploaded successfully. Admin will review them shortly.');
+    }
+
     public function manage(int $id)
     {
         // Fixed: Use Tender model instead of Project

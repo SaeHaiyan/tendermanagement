@@ -27,6 +27,7 @@ Route::get('/logout-forced', function (Request $request) {
 // --- SUBCON DASHBOARD & PROGRESS ROUTES ---
 Route::middleware(['auth', 'check_status'])->group(function () {
     Route::get('/subcon/dashboard', [SubconController::class, 'index'])->name('subcon.dashboard');
+    Route::post('/subcon/pending-documents', [SubconController::class, 'uploadPendingDocuments'])->name('subcon.pending-documents.upload');
     Route::get('/subcon/tenders/{project}/manage', [SubconController::class, 'manage'])->name('subcon.tenders.manage');
     Route::get('/subcon/dashboard/history', [SubconController::class, 'history'])->name('subcon.dashboard.history');
 
@@ -53,7 +54,6 @@ Route::middleware(['auth', CheckAdmin::class])->group(function () {
 
     Route::get('/admin/tenders', [TenderController::class, 'index'])->name('admin.tenders.index');
     Route::get('/admin/tenders/export', [TenderController::class, 'export'])->name('admin.tenders.export');
-    Route::get('/admin/tenders/{id}/export-single', [TenderController::class, 'exportSingle'])->name('admin.tenders.export-single');
     Route::get('/admin/tenders/create', [TenderController::class, 'create'])->name('admin.tenders.create');
     Route::post('/admin/tenders', [TenderController::class, 'store'])->name('admin.tenders.store');
     Route::get('/admin/tenders/{tender}/edit', [TenderController::class, 'edit'])->name('admin.tenders.edit');
