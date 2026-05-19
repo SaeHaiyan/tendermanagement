@@ -8,7 +8,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12 mx-auto sm:px-6 lg:px-8">
+    <div x-data="{ loading: false }" class="mx-auto sm:px-6 lg:px-8">
 
         @if(session('success'))
             <div class="mb-4 p-4 rounded-xl bg-green-100 border border-green-300 text-green-700 font-semibold">
@@ -211,7 +211,7 @@
                                 <td class="px-6 py-5">
                                     <div class="flex items-center justify-center space-x-2">
 
-                                            <a href="{{ route('admin.tenders.match', $tender) }}" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-widest rounded shadow-sm animate-pulse">
+                                            <a href="{{ route('admin.tenders.match', $tender) }}" @click="loading = true" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-widest rounded shadow-sm animate-pulse">
                                                 Review
                                             </a>
                                             <a href="{{ route('admin.tenders.show', $tender) }}" class="p-2 text-slate-500 hover:text-red-600 border border-slate-200 rounded hover:border-red-600 transition" title="View">
@@ -248,6 +248,16 @@
             </div>
             <div class="text-slate-600 text-sm font-black bg-white px-4 py-2 rounded border border-slate-200">
                 Total: <span class="text-red-600">{{ $tenders->count() }}</span> Tenders
+            </div>
+        </div>
+        <div x-show="loading" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm px-4 py-6">
+            <div class="max-w-md w-full rounded-3xl bg-white p-8 text-center shadow-2xl border border-slate-200">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="h-14 w-14 rounded-full border-4 border-slate-200 border-t-slate-900 animate-spin"></div>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-2">AI Evaluation In Progress</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">The review is being prepared. This may take a few seconds.</p>
+                <div class="mt-6 text-xs uppercase tracking-[0.25em] font-black text-slate-400">Please wait...</div>
             </div>
         </div>
     </div>

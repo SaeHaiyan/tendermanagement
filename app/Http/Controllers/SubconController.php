@@ -79,6 +79,19 @@ class SubconController extends Controller
         return view('subcon.manage-project', compact('project', 'submittedFiles', 'hasRejections'));
     }
 
+    public function documents()
+    {
+        $user = Auth::user();
+        $pendingDocuments = $user->pending_documents ?? [];
+
+        return view('subcon.documents', compact('pendingDocuments'));
+    }
+
+    public function uploadDocuments(Request $request)
+    {
+        return $this->uploadPendingDocuments($request);
+    }
+
     /**
      * Handle initial or additional file uploads for a specific category
      */

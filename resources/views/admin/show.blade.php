@@ -7,7 +7,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12 bg-gray-50">
+    <div class="bg-gray-50">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
 
             {{-- Status Messages --}}

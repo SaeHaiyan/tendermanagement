@@ -26,8 +26,8 @@
                         $label1 = $isManagement ? 'Tenders Menu' : 'My Workspace';
                     @endphp
 
-                    <button @click="activeDropdown === '{{ $dropId1 }}' ? activeDropdown = null : activeDropdown = '{{ $dropId1 }}'"
-                            class="flex items-center justify-between w-full text-white hover:bg-red-700/50 rounded-lg px-3 py-2.5 font-bold uppercase tracking-wider text-xs border-l-4 border-transparent hover:border-white transition-all duration-150 group focus:outline-none">
+                        <button @click="activeDropdown === '{{ $dropId1 }}' ? activeDropdown = null : activeDropdown = '{{ $dropId1 }}'"
+                            class="flex items-center justify-between w-full text-white hover:bg-red-700/60 rounded-xl px-3 py-3 font-bold uppercase tracking-[0.18em] text-xs border-l-4 border-transparent hover:border-white transition-all duration-150 group focus:outline-none">
                         <span class="opacity-80 group-hover:opacity-100 transition-opacity">{{ $label1 }}</span>
                         <svg class="h-3.5 w-3.5 transform transition-transform duration-200 opacity-70 group-hover:opacity-100"
                              :class="{ 'rotate-180': activeDropdown === '{{ $dropId1 }}' }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,18 +37,27 @@
 
                     <div x-show="activeDropdown === '{{ $dropId1 }}'" x-collapse class="pl-4 space-y-1 overflow-hidden" style="display: none;">
                         @if(Auth::user()->role === 'admin')
-                            <x-nav-link :href="route('admin.tenders.index')" :active="request()->routeIs('admin.tenders.index')" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
-                                {{ ('• Tenders List') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('admin.tenders.create')" :active="request()->routeIs('admin.tenders.create')" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
-                                {{ ('• Create New Tender') }}
-                            </x-nav-link>
+                            <a href="{{ route('admin.tenders.index') }}" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors {{ request()->routeIs('admin.tenders.index') ? 'bg-red-700/40 text-white' : '' }}">
+                                {{ ('Tenders List') }}
+                            </a>
+                            <a href="{{ route('admin.tenders.create') }}" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors {{ request()->routeIs('admin.tenders.create') ? 'bg-red-700/40 text-white' : '' }}">
+                                {{ ('Create New Tender') }}
+                            </a>
+                            <a href="{{ route('admin.pending-approvals') }}" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors {{ request()->routeIs('admin.pending-approvals') ? 'bg-red-700/40 text-white' : '' }}">
+                                {{ ('Pending Approvals') }}
+                            </a>
+                            <a href="{{ route('admin.activity') }}" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors {{ request()->routeIs('admin.activity') ? 'bg-red-700/40 text-white' : '' }}">
+                                {{ ('Activity') }}
+                            </a>
                         @else
                             <a href="#" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
-                                • My Assigned Tasks
+                                {{ ('My Assigned Tasks') }}
                             </a>
                             <a href="{{ route('profile.edit') }}" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
-                                • Company Profile
+                                {{ ('Company Profile') }}
+                            </a>
+                            <a href="{{ route('subcon.documents.index') }}" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
+                                {{ ('Upload Documents') }}
                             </a>
                         @endif
                     </div>
@@ -59,8 +68,8 @@
                         $label2 = Auth::user()->role === 'admin' ? 'Subcontractors' : 'My Projects';
                     @endphp
 
-                    <button @click="activeDropdown === 'settings' ? activeDropdown = null : activeDropdown = 'settings'"
-                            class="flex items-center justify-between w-full text-white hover:bg-red-700/50 rounded-lg px-3 py-2.5 font-bold uppercase tracking-wider text-xs border-l-4 border-transparent hover:border-white transition-all duration-150 group focus:outline-none">
+                        <button @click="activeDropdown === 'settings' ? activeDropdown = null : activeDropdown = 'settings'"
+                            class="flex items-center justify-between w-full text-white hover:bg-red-700/60 rounded-xl px-3 py-3 font-bold uppercase tracking-[0.18em] text-xs border-l-4 border-transparent hover:border-white transition-all duration-150 group focus:outline-none">
                         <span class="opacity-80 group-hover:opacity-100 transition-opacity">{{ $label2 }}</span>
                         <svg class="h-3.5 w-3.5 transform transition-transform duration-200 opacity-70 group-hover:opacity-100"
                              :class="{ 'rotate-180': activeDropdown === 'settings' }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -70,18 +79,18 @@
 
                     <div x-show="activeDropdown === 'settings'" x-collapse class="pl-4 space-y-1 overflow-hidden" style="display: none;">
                         @if(Auth::user()->role === 'admin')
-                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
-                                {{ ('• Subcontractors List') }}
-                            </x-nav-link>
+                            <a href="{{ route('admin.dashboard') }}" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-red-700/40 text-white' : '' }}">
+                                {{ ('Subcontractors List') }}
+                            </a>
                             <a href="#" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
-                                • Assign New Task
+                                {{ ('Assign New Task') }}
                             </a>
                         @else
                             <a href="#" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
-                                • Active Projects
+                                {{ ('Active Projects') }}
                             </a>
                             <a href="#" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
-                                • Project History
+                                {{ ('Project History') }}
                             </a>
                         @endif
                     </div>

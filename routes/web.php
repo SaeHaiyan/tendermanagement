@@ -28,6 +28,8 @@ Route::get('/logout-forced', function (Request $request) {
 Route::middleware(['auth', 'check_status'])->group(function () {
     Route::get('/subcon/dashboard', [SubconController::class, 'index'])->name('subcon.dashboard');
     Route::post('/subcon/pending-documents', [SubconController::class, 'uploadPendingDocuments'])->name('subcon.pending-documents.upload');
+    Route::get('/subcon/documents', [SubconController::class, 'documents'])->name('subcon.documents.index');
+    Route::post('/subcon/documents', [SubconController::class, 'uploadDocuments'])->name('subcon.documents.upload');
     Route::get('/subcon/tenders/{project}/manage', [SubconController::class, 'manage'])->name('subcon.tenders.manage');
     Route::get('/subcon/dashboard/history', [SubconController::class, 'history'])->name('subcon.dashboard.history');
 
@@ -47,6 +49,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', CheckAdmin::class])->group(function () {
 
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/pending-approvals', [AdminController::class, 'pendingApprovals'])->name('admin.pending-approvals');
+    Route::get('/admin/activity', [AdminController::class, 'activity'])->name('admin.activity');
     Route::get('/admin/dashboard/export', [AdminController::class, 'exportUsers'])->name('admin.dashboard.export');
     Route::get('/admin/subcon/{id}', [AdminController::class, 'show'])->name('admin.subcon.show');
     Route::patch('/admin/subcon/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.subcon.update-status');

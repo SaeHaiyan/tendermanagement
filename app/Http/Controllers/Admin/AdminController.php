@@ -128,6 +128,51 @@ class AdminController extends Controller
         return view('admin.show', compact('subcon'));
     }
 
+    public function pendingApprovals()
+    {
+        $pendingSubcontractors = User::query()
+            ->where('role', 'subcon')
+            ->where('status', 'pending')
+            ->latest()
+            ->get();
+
+        return view('admin.pending-approvals', compact('pendingSubcontractors'));
+    }
+
+    public function activity()
+    {
+        $events = collect();
+
+        Tender::with('selectedSubcon')
+            ->whereNotNull('report_path')
+            ->latest('updated_at')
+            ->get()
+            ->each(function ($tender) use ($events) {
+                $reportData = is_array($tender->report_path)
+                    ? $tender->report_path
+                    : json_decode($tender->report_path ?? '', true) ?? [];
+
+                foreach ($reportData['files'] ?? [] as $category => $files) {
+                    foreach ($files as $file) {
+                        if (!empty($file['uploaded_at'])) {
+                            $events->push([
+                                'time' => $file['uploaded_at'],
+                                'subcon' => $tender->selectedSubcon?->company_name ?? $tender->selectedSubcon?->name,
+                                'tender' => $tender->title,
+                                'category' => str_replace('_', ' ', ucfirst($category)),
+                                'status' => $file['status'] ?? 'pending',
+                                'uploader' => $tender->selectedSubcon?->name ?? 'Subcontractor',
+                            ]);
+                        }
+                    }
+                }
+            });
+
+        $events = $events->sortByDesc('time')->take(50);
+
+        return view('admin.activity', compact('events'));
+    }
+
     /**
      * Show Tender Details & Review Submissions
      * This is the method for admin/tenders/show.blade.php
