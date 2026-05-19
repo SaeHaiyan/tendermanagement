@@ -60,13 +60,11 @@
                 <div class="bg-slate-50/50 px-5 py-4 grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
 
                     <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Project Status</label>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Status</label>
                         <select name="status" onchange="this.form.submit()" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 focus:border-indigo-500 focus:ring-0 cursor-pointer">
                             <option value="">All Tenders</option>
-                            <option value="open" {{ request('status') === 'open' ? 'selected' : '' }}>Open</option>
-                            <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
-                            <option value="under_review" {{ request('status') === 'under_review' ? 'selected' : '' }}>Review Pending</option>
+                            <option value="assigned" {{ request('status') === 'assigned' ? 'selected' : '' }}>Assigned</option>
+                            <option value="under_review" {{ request('status') === 'under_review' ? 'selected' : '' }}>Under Review</option>
                         </select>
                     </div>
 
@@ -86,7 +84,6 @@
                             <option value="created_at" {{ request('sort_by') === 'created_at' ? 'selected' : '' }}>Newest Published</option>
                             <option value="title" {{ request('sort_by') === 'title' ? 'selected' : '' }}>Project Title</option>
                             <option value="deadline" {{ request('sort_by') === 'deadline' ? 'selected' : '' }}>Deadline Date</option>
-                            <option value="work_status" {{ request('sort_by') === 'work_status' ? 'selected' : '' }}>Work Status</option>
                             <option value="required_grade" {{ request('sort_by') === 'required_grade' ? 'selected' : '' }}>CIDB Grade</option>
                             <option value="selected_subcon" {{ request('sort_by') === 'selected_subcon' ? 'selected' : '' }}>Assigned Subcontractor</option>
                         </select>
@@ -139,12 +136,7 @@
                                 </a>
                             </th>
                             <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">
-                                <a href="{{ route('admin.tenders.index', array_merge(request()->except('page'), ['sort_by' => 'work_status', 'sort_dir' => request('sort_by') === 'work_status' && request('sort_dir') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center gap-2">
-                                    Status
-                                    @if(request('sort_by') === 'work_status')
-                                        <span>{{ request('sort_dir') === 'asc' ? '↑' : '↓' }}</span>
-                                    @endif
-                                </a>
+                                Status
                             </th>
                             <th class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest text-center">Management</th>
                         </tr>
@@ -182,28 +174,15 @@
                                 </td>
 
                                 <td class="px-6 py-5">
-                                    @if($tender->work_status === 'under_review')
-                                        <div class="inline-flex items-center px-3 py-1 rounded bg-blue-50 border border-blue-200">
-                                            <span class="relative flex h-2 w-2 mr-2">
-                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                                <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-                                            </span>
-                                            <span class="text-[10px] font-black text-blue-700 uppercase tracking-widest">Review Pending</span>
+                                    @if($tender->selected_subcon_id)
+                                        <div class="inline-flex items-center px-3 py-1 rounded bg-emerald-50 border border-emerald-200">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 mr-2"></span>
+                                            <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Assigned</span>
                                         </div>
                                     @else
-                                        @php
-                                            $statusConfig = [
-                                                'open' => ['bg' => 'bg-amber-50', 'text' => 'text-amber-700', 'border' => 'border-amber-200', 'dot' => 'bg-amber-400'],
-                                                'in_progress' => ['bg' => 'bg-slate-100', 'text' => 'text-slate-700', 'border' => 'border-slate-200', 'dot' => 'bg-slate-400'],
-                                                'completed' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200', 'dot' => 'bg-emerald-400'],
-                                            ];
-                                            $config = $statusConfig[$tender->work_status ?? 'open'] ?? $statusConfig['open'];
-                                        @endphp
-                                        <div class="inline-flex items-center px-3 py-1 rounded {{ $config['bg'] }} {{ $config['border'] }} border">
-                                            <span class="h-1.5 w-1.5 rounded-full {{ $config['dot'] }} mr-2"></span>
-                                            <span class="text-[10px] font-black {{ $config['text'] }} uppercase tracking-widest">
-                                                {{ str_replace('_', ' ', $tender->work_status ?? 'open') }}
-                                            </span>
+                                        <div class="inline-flex items-center px-3 py-1 rounded bg-amber-50 border border-amber-200">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-amber-400 mr-2"></span>
+                                            <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Under Review</span>
                                         </div>
                                     @endif
                                 </td>

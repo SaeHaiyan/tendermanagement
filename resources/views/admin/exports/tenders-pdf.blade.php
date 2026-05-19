@@ -37,7 +37,7 @@
                     <td>{{ $tender->required_grade }}</td>
                     <td>{{ $tender->required_services }}</td>
                     <td>{{ optional($tender->deadline)->format('Y-m-d') }}</td>
-                    <td>{{ $tender->work_status }}</td>
+                    <td>{{ $tender->selected_subcon_id ? 'Assigned' : 'Under Review' }}</td>
                     <td>{{ optional($tender->selectedSubcon)->company_name }}</td>
                     <td>{{ $tender->progress_percent }}%</td>
                 </tr>

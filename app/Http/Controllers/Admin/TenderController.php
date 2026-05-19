@@ -20,7 +20,7 @@ class TenderController extends Controller
      */
     public function index(Request $request)
     {
-        $allowedSorts = ['title', 'deadline', 'work_status', 'required_grade', 'created_at', 'selected_subcon'];
+        $allowedSorts = ['title', 'deadline', 'required_grade', 'created_at', 'selected_subcon'];
         $sortBy = in_array($request->query('sort_by'), $allowedSorts) ? $request->query('sort_by') : 'created_at';
         $sortDir = $request->query('sort_dir') === 'asc' ? 'asc' : 'desc';
 
@@ -36,7 +36,11 @@ class TenderController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('work_status', $request->query('status'));
+            if ($request->query('status') === 'assigned') {
+                $query->whereNotNull('selected_subcon_id');
+            } elseif ($request->query('status') === 'under_review') {
+                $query->whereNull('selected_subcon_id');
+            }
         }
 
         if ($request->filled('grade')) {
@@ -59,7 +63,7 @@ class TenderController extends Controller
     public function export(Request $request)
     {
         $format = strtolower($request->query('format', 'excel')) === 'pdf' ? 'pdf' : 'excel';
-        $allowedSorts = ['title', 'deadline', 'work_status', 'required_grade', 'created_at', 'selected_subcon'];
+        $allowedSorts = ['title', 'deadline', 'required_grade', 'created_at', 'selected_subcon'];
         $sortBy = in_array($request->query('sort_by'), $allowedSorts) ? $request->query('sort_by') : 'created_at';
         $sortDir = $request->query('sort_dir') === 'asc' ? 'asc' : 'desc';
 
@@ -92,7 +96,11 @@ class TenderController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('work_status', $request->query('status'));
+            if ($request->query('status') === 'assigned') {
+                $query->whereNotNull('selected_subcon_id');
+            } elseif ($request->query('status') === 'under_review') {
+                $query->whereNull('selected_subcon_id');
+            }
         }
 
         if ($request->filled('grade')) {
@@ -120,7 +128,7 @@ class TenderController extends Controller
             $sheet->setCellValue('C' . $row, $tender->required_grade);
             $sheet->setCellValue('D' . $row, $tender->required_services);
             $sheet->setCellValue('E' . $row, optional($tender->deadline)->format('Y-m-d'));
-            $sheet->setCellValue('F' . $row, $tender->work_status);
+            $sheet->setCellValue('F' . $row, $tender->selected_subcon_id ? 'Assigned' : 'Under Review');
             $sheet->setCellValue('G' . $row, optional($tender->selectedSubcon)->company_name);
             $sheet->setCellValue('H' . $row, $tender->progress_percent . '%');
         }
@@ -181,7 +189,8 @@ class TenderController extends Controller
 
                 // Core Tender Meta Metadata Block
                 fputcsv($file, ['Project Title', $tender->title]);
-                fputcsv($file, ['Work Status', Str::upper($tender->work_status)]);                fputcsv($file, ['Progress Percent', $tender->progress_percent . '%']);
+                fputcsv($file, ['Work Status', Str::upper($tender->work_status)]);
+                fputcsv($file, ['Progress Percent', $tender->progress_percent . '%']);
                 fputcsv($file, ['Required Grade', 'Grade ' . $tender->required_grade]);
                 fputcsv($file, ['Partner Subcon', $tender->selectedSubcon->company_name ?? 'None Assigned']);
                 fputcsv($file, []);
