@@ -1,62 +1,127 @@
-<nav x-data="{ open: false }" class="bg-red-600 shadow-lg border-b border-red-700"> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-20"> <div class="flex">
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ Auth::user()->role === 'admin' ? route('admin.dashboard') : route('subcon.dashboard') }}">
-                        <img src="https://aito.com.my/wp-content/uploads/2022/08/aitonewlogowhite.png" class="block h-12 w-auto" alt="AITO Logo" /> </a>
-                </div>
+<nav x-data="{ open: false }" class="bg-red-600 h-screen w-full md:w-60 border-b border-red-700 md:border-b-0 md:border-r md:border-red-700 fixed md:sticky top-0 z-50 overflow-visible shadow-xl">
+    <div class="flex h-full flex-col px-4 py-6 sm:px-6 justify-between">
 
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    @if(Auth::user()->role === 'admin')
-                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-white hover:text-gray-100 font-bold uppercase tracking-wider text-sm border-t-4 border-transparent hover:border-gray-100 transition-all">
-                            {{ ('Admin Panel') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.tenders.index')" :active="request()->routeIs('admin.tenders.*')" class="text-white hover:text-gray-100 font-bold uppercase tracking-wider text-sm border-t-4 border-transparent hover:border-gray-100 transition-all">
-                            {{ ('Tender Projects') }}
-                        </x-nav-link>
-                    @else
-                        <x-nav-link :href="route('subcon.dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-gray-100 font-bold uppercase tracking-wider text-sm border-t-4 border-transparent hover:border-gray-100 transition-all">
-                            {{ ('Dashboard') }}
-                        </x-nav-link>
-                    @endif
-                </div>
+        <div x-data="{ activeDropdown: null }">
+            <div class="flex items-center justify-between md:justify-start pb-4 mb-4 border-b border-red-500/30">
+                <a href="{{ Auth::user()->role === 'admin' ? route('admin.dashboard') : route('subcon.dashboard') }}" class="inline-flex items-center">
+                    <img src="https://aito.com.my/wp-content/uploads/2022/08/aitonewlogowhite.png" class="h-12 w-auto" alt="AITO Logo" />
+                </a>
             </div>
 
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-bold rounded-md text-white bg-red-600 hover:text-gray-100 focus:outline-none transition ease-in-out duration-150 uppercase tracking-widest">
-                            <div>{{ Auth::user()->name }}</div>
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
+            <div class="space-y-2">
+                @if(Auth::user()->role === 'admin')
+                    <div class="flex items-center text-white/60 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em]">
+                        Admin Panel
+                    </div>
+                @elseif(Auth::user()->role === 'subcon')
+                    <div class="flex items-center text-white/60 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em]">
+                        Subcontractor Portal
+                    </div>
+                @endif
 
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')" class="text-gray-700 hover:text-red-600 font-medium">
-                            {{ ('Profile') }}
-                        </x-dropdown-link>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <x-dropdown-link :href="route('logout')" class="text-gray-700 hover:text-red-600 font-medium"
-                                    onclick="event.preventDefault(); this.closest('form').submit();">
-                                {{ ('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
+                <div class="space-y-1">
+                    @php
+                        $isManagement = Auth::user()->role === 'admin';
+                        $dropId1 = $isManagement ? 'management' : 'subcon_menu';
+                        $label1 = $isManagement ? 'Tenders Menu' : 'My Workspace';
+                    @endphp
 
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-100 hover:text-white hover:bg-red-700 focus:outline-none focus:bg-red-700 transition duration-150">
-                    <svg class="h-6 w-6 text-white" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                    <button @click="activeDropdown === '{{ $dropId1 }}' ? activeDropdown = null : activeDropdown = '{{ $dropId1 }}'"
+                            class="flex items-center justify-between w-full text-white hover:bg-red-700/50 rounded-lg px-3 py-2.5 font-bold uppercase tracking-wider text-xs border-l-4 border-transparent hover:border-white transition-all duration-150 group focus:outline-none">
+                        <span class="opacity-80 group-hover:opacity-100 transition-opacity">{{ $label1 }}</span>
+                        <svg class="h-3.5 w-3.5 transform transition-transform duration-200 opacity-70 group-hover:opacity-100"
+                             :class="{ 'rotate-180': activeDropdown === '{{ $dropId1 }}' }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div x-show="activeDropdown === '{{ $dropId1 }}'" x-collapse class="pl-4 space-y-1 overflow-hidden" style="display: none;">
+                        @if(Auth::user()->role === 'admin')
+                            <x-nav-link :href="route('admin.tenders.index')" :active="request()->routeIs('admin.tenders.index')" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
+                                {{ ('• Tenders List') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.tenders.create')" :active="request()->routeIs('admin.tenders.create')" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
+                                {{ ('• Create New Tender') }}
+                            </x-nav-link>
+                        @else
+                            <a href="#" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
+                                • My Assigned Tasks
+                            </a>
+                            <a href="{{ route('profile.edit') }}" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
+                                • Company Profile
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    @php
+                        $label2 = Auth::user()->role === 'admin' ? 'Subcontractors' : 'My Projects';
+                    @endphp
+
+                    <button @click="activeDropdown === 'settings' ? activeDropdown = null : activeDropdown = 'settings'"
+                            class="flex items-center justify-between w-full text-white hover:bg-red-700/50 rounded-lg px-3 py-2.5 font-bold uppercase tracking-wider text-xs border-l-4 border-transparent hover:border-white transition-all duration-150 group focus:outline-none">
+                        <span class="opacity-80 group-hover:opacity-100 transition-opacity">{{ $label2 }}</span>
+                        <svg class="h-3.5 w-3.5 transform transition-transform duration-200 opacity-70 group-hover:opacity-100"
+                             :class="{ 'rotate-180': activeDropdown === 'settings' }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div x-show="activeDropdown === 'settings'" x-collapse class="pl-4 space-y-1 overflow-hidden" style="display: none;">
+                        @if(Auth::user()->role === 'admin')
+                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
+                                {{ ('• Subcontractors List') }}
+                            </x-nav-link>
+                            <a href="#" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
+                                • Assign New Task
+                            </a>
+                        @else
+                            <a href="#" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
+                                • Active Projects
+                            </a>
+                            <a href="#" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
+                                • Project History
+                            </a>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="pt-4 border-t border-red-500/30 relative" x-data="{ open: false }">
+            <button @click="open = !open" @click.away="open = false" class="flex items-center justify-between w-full px-3 py-2.5 text-left text-white bg-red-700/40 hover:bg-red-700/80 rounded-xl border border-red-500/20 focus:outline-none transition ease-in-out duration-150 uppercase tracking-widest text-xs font-bold group">
+                <span class="truncate max-w-[140px] opacity-90 group-hover:opacity-100">{{ Auth::user()->name }}</span>
+                <svg class="fill-current h-4 w-4 text-white opacity-70 group-hover:opacity-100 transition-transform duration-200" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+
+            <div x-show="open"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="transform opacity-0 scale-95 translate-y-2"
+                 x-transition:enter-end="transform opacity-100 scale-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-75"
+                 x-transition:leave-start="transform opacity-100 scale-100"
+                 x-transition:leave-end="transform opacity-0 scale-95"
+                 class="absolute bottom-full left-0 mb-3 w-full bg-white rounded-xl shadow-2xl py-1.5 ring-1 ring-black ring-opacity-5 z-50 border border-gray-100"
+                 style="display: none;">
+
+                <x-dropdown-link :href="route('profile.edit')" class="text-gray-700 hover:text-red-600 hover:bg-red-50 font-semibold text-xs tracking-wider uppercase px-4 py-2.5 block transition-colors">
+                    {{ ('Profile') }}
+                </x-dropdown-link>
+
+                <div class="h-px bg-gray-100 my-1"></div>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <x-dropdown-link :href="route('logout')" class="text-gray-700 hover:text-red-600 hover:bg-red-50 font-semibold text-xs tracking-wider uppercase px-4 py-2.5 block transition-colors"
+                            onclick="event.preventDefault(); this.closest('form').submit();">
+                        {{ ('Log Out') }}
+                    </x-dropdown-link>
+                </form>
+            </div>
+        </div>
+
     </div>
 </nav>

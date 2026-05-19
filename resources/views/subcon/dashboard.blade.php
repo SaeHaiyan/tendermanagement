@@ -69,7 +69,12 @@
                                         <span class="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase rounded-lg">#{{ $project->id }}</span>
                                         <span class="text-slate-400 text-xs font-bold italic">Due: {{ \Carbon\Carbon::parse($project->deadline)->format('d M Y') }}</span>
                                     </div>
-                                    <h4 class="text-2xl font-black text-slate-900">{{ $project->title }}</h4>
+                                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                        <h4 class="text-2xl font-black text-slate-900">{{ $project->title }}</h4>
+                                        <a href="{{ route('subcon.tenders.manage', $project->id) }}" class="inline-flex items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 px-5 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-sm transition hover:bg-slate-800">
+                                            Manage Project
+                                        </a>
+                                    </div>
 
                                     {{-- REJECTION FEEDBACK LIST --}}
                                     <div class="mt-6 space-y-3">

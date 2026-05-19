@@ -8,7 +8,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12 max-auto sm:px-6 lg:px-8">
+    <div class="max-auto sm:px-6 lg:px-8">
 
         <div class="flex justify-between items-end mb-8">
             <div>
@@ -98,33 +98,31 @@
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-200 border-t-4 border-t-red-600">
             <div class="overflow-x-auto">
                 <table class="text-left border-collapse w-full">
-                    <thead class="bg-gray-100 border-b border-gray-200 text-gray-700 uppercase text-xs font-bold">
+                    <thead class="bg-gray-100 border-b border-gray-200 text-gray-700 uppercase text-sm font-bold">
                         <tr>
-                            <th class="px-8 py-5">Company Info</th>
-                            <th class="px-8 py-5">Person In Charge</th>
-                            <th class="px-8 py-5 text-center">CIDB Grade</th>
-                            <th class="px-8 py-5 text-center">Status</th>
-                            <th class="px-8 py-5">Core Services</th>
-                            <th class="px-8 py-5 text-right">Registered</th>
-                            <th class="px-8 py-5 text-center">Actions</th>
+                            <th class="px-4 py-5">Company Info</th>
+                            <th class="px-4 py-5">Person In Charge</th>
+                            <th class="px-4 py-5 text-center">CIDB Grade</th>
+                            <th class="px-4 py-5 text-center">Status</th>
+                            <th class="px-4 py-5 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse($users as $user)
                             <tr class="hover:bg-red-50/30 transition-colors duration-150">
-                                <td class="px-8 py-6">
-                                    <div class="text-md font-semibold text-gray-800">{{ $user->company_name ?? '---' }}</div>
+                                <td class="px-8 py-3">
+                                    <div class="text-lg font-bold text-gray-900">{{ $user->company_name ?? '---' }}</div>
                                     @if($user->year_established)
                                         <span class="text-xs text-gray-400 uppercase tracking-tighter font-medium">Est. {{ $user->year_established }}</span>
                                     @endif
                                 </td>
 
-                                <td class="px-8 py-6">
-                                    <div class="text-lg font-bold text-gray-900">{{ $user->name }}</div>
+                                <td class="px-8 py-3">
+                                    <div class="text-mid font-bold text-gray-800">{{ $user->name }}</div>
                                     <div class="text-sm text-gray-500">{{ $user->email }}</div>
                                 </td>
 
-                                <td class="px-8 py-6 text-center">
+                                <td class="px-8 py-3 text-center">
                                     @if($user->cidb_grades)
                                         <span class="inline-block bg-gray-100 text-gray-800 text-sm font-bold px-3 py-1 rounded border border-gray-200">
                                             {{ is_array($user->cidb_grades) ? implode(', ', $user->cidb_grades) : $user->cidb_grades }}
@@ -134,7 +132,7 @@
                                     @endif
                                 </td>
 
-                                <td class="px-8 py-6">
+                                <td class="px-8 py-3">
                                     <div class="flex justify-center">
                                         @php
                                             $status = strtolower($user->status ?? 'pending');
@@ -152,17 +150,7 @@
                                     </div>
                                 </td>
 
-                                <td class="px-8 py-6">
-                                    <p class="text-sm text-gray-600 italic max-w-xs">
-                                        "{{ Str::limit($user->services_provided ?? 'No services listed', 40) }}"
-                                    </p>
-                                </td>
-
-                                <td class="px-8 py-6 text-right text-gray-500">
-                                    <div class="text-sm font-medium">{{ $user->created_at->format('M d, Y') }}</div>
-                                </td>
-
-                                <td class="px-8 py-6 text-center">
+                                <td class="px-8 py-3 text-center">
                                     <div class="flex justify-center space-x-2">
                                         <a href="{{ route('admin.subcon.show', ['id' => $user->id]) }}"
                                             class="text-gray-600 hover:text-red-600 font-bold px-3 py-1 border border-gray-300 rounded hover:border-red-600 transition">
