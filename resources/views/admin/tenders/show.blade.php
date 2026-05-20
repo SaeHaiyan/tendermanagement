@@ -41,12 +41,12 @@
 
                 {{-- DYNAMIC SINGLE TENDER DOCUMENT GENERATION UTILITIES --}}
                 <div class="flex items-center gap-2 self-start md:self-auto">
-                    <a href="{{ route('admin.tenders.export-single', ['id' => $tender->id, 'format' => 'excel']) }}"
+                    <a href="{{ route('admin.tenders.export-single', ['tender' => $tender->id, 'format' => 'excel']) }}"
                        class="flex items-center gap-2 border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 px-4 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition shadow-sm bg-white">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
                         Export Sheet
                     </a>
-                    <a href="{{ route('admin.tenders.export-single', ['id' => $tender->id, 'format' => 'pdf']) }}"
+                    <a href="{{ route('admin.tenders.export-single', ['tender' => $tender->id, 'format' => 'pdf']) }}"
                        class="flex items-center gap-2 border border-slate-200 hover:border-slate-900 hover:bg-slate-950 hover:text-white px-4 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition shadow-sm bg-white">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
                         Print Summary
@@ -65,12 +65,12 @@
                 </div>
                 <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                     <p class="text-[15px] font-black text-slate-400 uppercase tracking-widest mb-1">Required Grade</p>
-                    <p class="text-xl font-black text-slate-900 uppercase">Grade {{ $tender->required_grade }}</p>
+                    <p class="text-xl font-black text-slate-900 uppercase">{{ $tender->required_grade }}</p>
                 </div>
                 <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                     @php $deadline = \Carbon\Carbon::parse($tender->deadline); $daysLeft = (int) now()->diffInDays($deadline, false); @endphp
-                    <p class="text-[15px] font-black text-slate-400 uppercase tracking-widest mb-1 text-center">Remaining Time</p>
-                    <p class="text-xl font-black {{ $daysLeft < 0 ? 'text-red-500' : 'text-amber-500' }} text-center">
+                    <p class="text-[15px] font-black text-slate-400 uppercase tracking-widest mb-1">Remaining Time</p>
+                    <p class="text-xl font-black {{ $daysLeft < 0 ? 'text-red-500' : 'text-amber-500' }}">
                         {{ $daysLeft < 0 ? 'OVERDUE' : $daysLeft . ' Days' }}
                     </p>
                 </div>

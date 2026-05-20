@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="bg-slate-50 min-h-screen">
+    <div x-data="{ loading: false }" class="bg-slate-50 min-h-screen">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- --- SUCCESS ALERT --- --}}
@@ -38,14 +38,34 @@
                         <span class="inline-flex items-center px-4 py-2 rounded-xl {{ $tenders->selected_subcon_id ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100' }} border font-bold text-sm">
                             {{ $tenders->selected_subcon_id ? 'Assigned' : 'Awaiting Selection' }}
                         </span>
+                        <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition print-hidden">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 9h12v11H6z"/></svg>
+                            Print Report
+                        </button>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
+                <div x-show="loading" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
+                    <div class="bg-white rounded-3xl p-8 shadow-2xl text-center max-w-md w-full">
+                        <div class="mb-6">
+                            <div class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-white mx-auto">
+                                <svg class="w-8 h-8 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 0v4m0 14v-4m10-6h-4M6 12H2m15.364 6.364l-2.828-2.828M8.464 8.464L5.636 5.636m12.728 0l-2.828 2.828M8.464 15.536l-2.828 2.828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-900 mb-2">Regenerating AI Analysis</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Please wait while Gemini re-evaluates the tender. This may take a few moments.</p>
+                        <div class="mt-8 inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Loading AI review...
+                        </div>
+                    </div>
+                </div>
+
                 {{-- --- LEFT COLUMN: ACTION PANEL --- --}}
-                <div class="lg:col-span-1 space-y-6">
+                <div class="lg:col-span-1 space-y-6 print-hidden">
 
                     {{-- Assignment Card --}}
                     <div class="bg-indigo-600 p-6 rounded-2xl shadow-lg text-white">
@@ -122,7 +142,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7 7-7"></path></svg>
                                     Return to List
                                 </a>
-                                <a href="{{ route('admin.tenders.match', [$tenders, 'force' => 'true']) }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-bold text-sm transition">
+                                <a href="{{ route('admin.tenders.match', [$tenders, 'force' => 'true']) }}" @click.prevent="loading = true; window.location = $event.currentTarget.href" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-bold text-sm transition">
                                     Regenerate Analysis
                                 </a>
                             </div>
@@ -177,9 +197,12 @@
         body { font-family: 'Inter', sans-serif; }
         .ai-content strong { display: inline-block; margin-top: 1.5rem; border-bottom: 2px solid #e2e8f0; width: 100%; padding-bottom: 0.25rem; }
         @media print {
-            .bg-slate-900, .bg-indigo-600, button, a, nav, .lg:col-span-1 { display: none !important; }
-            .lg:col-span-2 { width: 100% !important; border: none !important; }
-            .shadow-sm { box-shadow: none !important; }
+            body { background: #fff !important; color: #000 !important; }
+            .print-hidden, button, a, nav { display: none !important; }
+            .bg-slate-900, .bg-indigo-600, .bg-slate-50, .bg-white, .border { background: transparent !important; color: #000 !important; }
+            .shadow-sm, .shadow-lg, .shadow-xl, .shadow-2xl { box-shadow: none !important; }
+            .rounded-2xl, .rounded-3xl, .rounded-xl, .rounded-r-xl { border-radius: 0 !important; }
+            .lg\:col-span-2 { width: 100% !important; border: none !important; }
         }
     </style>
 </x-app-layout>

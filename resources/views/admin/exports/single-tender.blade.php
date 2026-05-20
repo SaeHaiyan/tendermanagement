@@ -31,7 +31,7 @@
         </div>
         <div>
             <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Required Qualification</span>
-            <span class="text-xl font-black text-slate-900 uppercase">G{{ $tender->required_grade }}</span>
+            <span class="text-xl font-black text-slate-900 uppercase">{{ $tender->required_grade }}</span>
         </div>
         <div>
             <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Phase Status</span>

@@ -229,14 +229,17 @@
                 Total: <span class="text-red-600">{{ $tenders->count() }}</span> Tenders
             </div>
         </div>
-        <div x-show="loading" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm px-4 py-6">
-            <div class="max-w-md w-full rounded-3xl bg-white p-8 text-center shadow-2xl border border-slate-200">
-                <div class="flex items-center justify-center mb-4">
-                    <div class="h-14 w-14 rounded-full border-4 border-slate-200 border-t-slate-900 animate-spin"></div>
+        <div x-show="loading" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-sm p-4">
+            <div class="w-full max-w-lg rounded-[2rem] bg-white border border-slate-200 shadow-[0_30px_60px_-30px_rgba(15,23,42,0.6)] p-8 text-center">
+                <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg">
+                    <svg class="h-8 w-8 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 0v4m0 14v-4m10-6h-4M6 12H2m15.364 6.364l-2.828-2.828M8.464 8.464L5.636 5.636m12.728 0l-2.828 2.828M8.464 15.536l-2.828 2.828"/></svg>
                 </div>
-                <h3 class="text-xl font-bold text-slate-900 mb-2">AI Evaluation In Progress</h3>
-                <p class="text-sm text-slate-500 leading-relaxed">The review is being prepared. This may take a few seconds.</p>
-                <div class="mt-6 text-xs uppercase tracking-[0.25em] font-black text-slate-400">Please wait...</div>
+                <h3 class="text-2xl font-black text-slate-900 mb-3">AI Evaluation Underway</h3>
+                <p class="text-sm leading-7 text-slate-600 mx-auto max-w-xl">Your AI review is being generated now. Please keep this tab open until the results are ready.</p>
+                <div class="mt-8 inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Loading AI review...
+                </div>
             </div>
         </div>
     </div>
