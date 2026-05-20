@@ -70,8 +70,9 @@ Route::middleware(['auth', CheckAdmin::class])->group(function () {
     Route::get('/admin/tenders/{tender}/export-single', [TenderController::class, 'exportSingle'])->name('admin.tenders.export-single');
     Route::get('/admin/tenders/{tender}', [TenderController::class, 'show'])->name('admin.tenders.show');
 
-    Route::patch('/admin/tenders/{id}/approve', [SubconController::class, 'approve'])->name('admin.tenders.approve');
+    Route::patch('/admin/tenders/{id}/approve', [\App\Http\Controllers\Admin\TenderController::class, 'approveReport'])->name('admin.tenders.approve');
     Route::post('/admin/tenders/{tender}/reject-file', [TenderController::class, 'rejectFile'])->name('admin.tenders.reject-file');
+    Route::patch('/admin/tenders/{id}/file-status', [AdminController::class, 'updateFileStatus'])->name('admin.tenders.update-file-status');
 });
 
 require __DIR__.'/auth.php';

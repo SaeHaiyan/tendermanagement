@@ -33,9 +33,6 @@
                     </nav>
                     <h2 class="text-3xl font-black text-slate-900 tracking-tight flex items-center">
                         {{ $tender->title }}
-                        @if($tender->work_status === 'completed')
-                            <svg class="w-6 h-6 ml-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        @endif
                     </h2>
                 </div>
 
@@ -129,6 +126,16 @@
                                                 <div class="text-[10px] text-rose-500 italic max-w-[200px] text-right">"{{ $fFeedback }}"</div>
                                             @endif
                                             @if($tender->work_status !== 'completed')
+                                                @if($fStatus !== 'approved')
+                                                    <form action="{{ route('admin.tenders.update-file-status', $tender->id) }}" method="POST" class="inline">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="category" value="{{ $key }}">
+                                                        <input type="hidden" name="index" value="{{ $index }}">
+                                                        <input type="hidden" name="status" value="approved">
+                                                        <button type="submit" class="inline-flex items-center px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest rounded shadow-sm">Approve</button>
+                                                    </form>
+                                                @endif
                                                 <button @click="reviewOpen = !reviewOpen" class="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-slate-100 transition">Review</button>
                                             @endif
                                         </div>
@@ -138,8 +145,8 @@
                                                 @csrf
                                                 <input type="hidden" name="category" value="{{ $key }}">
                                                 <input type="hidden" name="file_index" value="{{ $index }}">
-                                                <input name="feedback" placeholder="Reason (if rejecting)..." class="flex-1 text-xs border-slate-200 rounded-xl focus:ring-rose-500 py-2">
-                                                <button type="submit" class="bg-rose-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Submit Review</button>
+                                                <input name="feedback" required placeholder="Reason (required) — explain what to fix" class="flex-1 text-xs border-slate-200 rounded-xl focus:ring-rose-500 py-2">
+                                                <button type="submit" class="bg-rose-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Reject Submission</button>
                                             </form>
                                         </div>
                                     </div>

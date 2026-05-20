@@ -28,7 +28,36 @@ class SubconController extends Controller
             ->latest()
             ->get();
 
-        return view('subcon.dashboard', compact('activeProjects', 'completedProjects'));
+        // Build activity events for this subcontractor (approved/rejected/pending uploads)
+        $events = collect();
+        $tendersWithReports = Tender::query()
+            ->where('selected_subcon_id', $user->id)
+            ->whereNotNull('report_path')
+            ->latest('updated_at')
+            ->get();
+
+        foreach ($tendersWithReports as $t) {
+            $reportData = is_array($t->report_path) ? $t->report_path : json_decode($t->report_path ?? '', true) ?? [];
+            foreach ($reportData['files'] ?? [] as $category => $files) {
+                foreach ($files as $idx => $file) {
+                    $status = $file['status'] ?? 'pending';
+                    $time = $file['reviewed_at'] ?? $file['uploaded_at'] ?? ($t->updated_at ? $t->updated_at->toDateTimeString() : now()->toDateTimeString());
+                    $events->push([
+                        'time' => $time,
+                        'tender_id' => $t->id,
+                        'title' => $t->title,
+                        'category' => $category,
+                        'status' => $status,
+                        'feedback' => $file['feedback'] ?? null,
+                        'index' => $idx,
+                    ]);
+                }
+            }
+        }
+
+        $events = $events->sortByDesc('time')->take(20)->values();
+
+        return view('subcon.dashboard', compact('activeProjects', 'completedProjects', 'events'));
     }
 
     public function uploadPendingDocuments(Request $request)

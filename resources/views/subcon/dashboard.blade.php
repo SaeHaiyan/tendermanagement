@@ -58,8 +58,8 @@
 
                             @if($hasRejections)
                                 <div class="mb-8 bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-2xl">
-                                    <h5 class="text-rose-700 font-black text-[10px] uppercase tracking-widest mb-1">Action Required</h5>
-                                    <p class="text-rose-600 text-xs">Some of your submitted documents were rejected. Please check the feedback below and re-upload.</p>
+                                    <h5 class="text-rose-700 font-black text-[10px] uppercase tracking-widest mb-1">Rejected — Need to Resubmit</h5>
+                                    <p class="text-rose-600 text-xs">Admin has reviewed some submissions and requested changes. Feedback is shown below — please re-upload corrected files.</p>
                                 </div>
                             @endif
 
@@ -117,6 +117,45 @@
                     @empty
                         <div class="bg-white rounded-3xl border border-slate-200 p-20 text-center text-slate-400 font-bold italic">No active projects assigned.</div>
                     @endforelse
+                </div>
+
+                {{-- Activity Feed --}}
+                <div class="mt-8">
+                    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-sm font-black uppercase tracking-widest text-slate-400">Recent Activity</h4>
+                            <a href="#" class="text-xs text-slate-500 hover:text-indigo-600">View all</a>
+                        </div>
+                        @if(!empty($events) && $events->count())
+                            <ul class="divide-y divide-slate-100">
+                                @foreach($events as $ev)
+                                    <li class="py-3 flex items-start justify-between">
+                                        <div>
+                                            <a href="{{ route('subcon.tenders.manage', $ev['tender_id']) }}" class="font-bold text-slate-800 hover:underline">{{ $ev['title'] }}</a>
+                                            <p class="text-xs text-slate-500 mt-1">{{ str_replace('_', ' ', ucfirst($ev['category'])) }} —
+                                                @if($ev['status'] === 'approved')
+                                                    <span class="text-emerald-600 font-black uppercase">Approved</span>
+                                                @elseif($ev['status'] === 'rejected')
+                                                    <span class="text-rose-600 font-black uppercase">Rejected — Need to Resubmit</span>
+                                                @else
+                                                    <span class="text-amber-600 font-black uppercase">Pending</span>
+                                                @endif
+                                            </p>
+                                            @if($ev['status'] === 'rejected' && $ev['feedback'])
+                                                <p class="text-xs text-rose-500 italic mt-2">"{{ $ev['feedback'] }}"</p>
+                                            @endif
+                                        </div>
+                                        <div class="text-right text-xs text-slate-400">
+                                            <div>{{ \Carbon\Carbon::parse($ev['time'])->diffForHumans() }}</div>
+                                            <a href="{{ route('subcon.tenders.manage', $ev['tender_id']) }}" class="text-xs text-indigo-600 font-black uppercase mt-2 block">Manage</a>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <div class="py-6 text-center text-slate-400 text-sm">No recent activity from admin reviews.</div>
+                        @endif
+                    </div>
                 </div>
             </div>
 
