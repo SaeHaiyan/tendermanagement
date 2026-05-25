@@ -437,7 +437,6 @@ class TenderController extends Controller
 
         $reportData = $tenders->report_path;
 
-
         if (is_string($reportData)) {
             $reportData = json_decode($reportData, true);
         }
@@ -451,18 +450,33 @@ class TenderController extends Controller
 
         // Check if the specific file exists
         if (isset($reportData['files'][$category][$index])) {
-
             // Update the array
             $reportData['files'][$category][$index]['status'] = 'rejected';
             $reportData['files'][$category][$index]['feedback'] = $request->feedback;
+            $reportData['files'][$category][$index]['reviewed_at'] = now()->toDateTimeString();
 
             // Save it back (Laravel handles the encoding if cast is in Model)
             $tenders->update([
                 'report_path' => $reportData
             ]);
 
+            \Log::info('File rejected', [
+                'tender_id' => $tenders->id,
+                'category' => $category,
+                'index' => $index,
+                'status' => $reportData['files'][$category][$index]['status'],
+                'feedback' => $reportData['files'][$category][$index]['feedback']
+            ]);
+
             return back()->with('success', 'File rejected successfully.');
         }
+
+        \Log::error('File index not found', [
+            'tender_id' => $tenders->id,
+            'category' => $category,
+            'index' => $index,
+            'available_categories' => array_keys($reportData['files'] ?? [])
+        ]);
 
         return back()->with('error', 'File index not found in category.');
     }

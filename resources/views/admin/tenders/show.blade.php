@@ -126,7 +126,7 @@
                                                 <div class="text-[10px] text-rose-500 italic max-w-[200px] text-right">"{{ $fFeedback }}"</div>
                                             @endif
                                             @if($tender->work_status !== 'completed')
-                                                @if($fStatus !== 'approved')
+                                                @if($fStatus !== 'approved' && $fStatus !== 'rejected')
                                                     <form action="{{ route('admin.tenders.update-file-status', $tender->id) }}" method="POST" class="inline">
                                                         @csrf
                                                         @method('PATCH')
@@ -135,8 +135,8 @@
                                                         <input type="hidden" name="status" value="approved">
                                                         <button type="submit" class="inline-flex items-center px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest rounded shadow-sm">Approve</button>
                                                     </form>
+                                                    <button @click="reviewOpen = !reviewOpen" class="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-slate-100 transition">Review</button>
                                                 @endif
-                                                <button @click="reviewOpen = !reviewOpen" class="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-slate-100 transition">Review</button>
                                             @endif
                                         </div>
 
