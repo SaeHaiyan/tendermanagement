@@ -30,7 +30,7 @@ Route::middleware(['auth', 'check_status'])->group(function () {
     Route::post('/subcon/pending-documents', [SubconController::class, 'uploadPendingDocuments'])->name('subcon.pending-documents.upload');
     Route::get('/subcon/documents', [SubconController::class, 'documents'])->name('subcon.documents.index');
     Route::post('/subcon/documents', [SubconController::class, 'uploadDocuments'])->name('subcon.documents.upload');
-    Route::get('/subcon/tenders/{project}/manage', [SubconController::class, 'manage'])->name('subcon.tenders.manage');
+    Route::get('/subcon/tenders/{id}/manage', [SubconController::class, 'manage'])->name('subcon.tenders.manage');
     Route::get('/subcon/dashboard/history', [SubconController::class, 'history'])->name('subcon.dashboard.history');
 
     Route::patch('/subcon/dashboard/tenders/{tender}/progress', [SubconController::class, 'updateProgress'])->name('subcon.tenders.update-progress');
