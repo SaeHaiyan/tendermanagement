@@ -73,6 +73,7 @@ Route::middleware(['auth', CheckAdmin::class])->group(function () {
     Route::patch('/admin/tenders/{id}/approve', [\App\Http\Controllers\Admin\TenderController::class, 'approveReport'])->name('admin.tenders.approve');
     Route::post('/admin/tenders/{tender}/reject-file', [TenderController::class, 'rejectFile'])->name('admin.tenders.reject-file');
     Route::patch('/admin/tenders/{id}/file-status', [AdminController::class, 'updateFileStatus'])->name('admin.tenders.update-file-status');
+    Route::post('/admin/tenders/{tender}/rate', [TenderController::class, 'rateSubcon'])->name('admin.tenders.rate');
 });
 
 require __DIR__.'/auth.php';

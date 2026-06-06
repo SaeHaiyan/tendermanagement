@@ -262,7 +262,7 @@ class TenderController extends Controller
     /**
      * Use AI to match subcontractors to a specific tender.
      */
-    public function match(int $id)
+    public function match(Request $request, int $id)
     {
         $tenders = Tender::findOrFail($id);
 
@@ -289,49 +289,70 @@ class TenderController extends Controller
             ]);
         }
 
-        // 3. Prepare the list for AI
+        // 3. Enrich matched subcons with rating metadata
+        $matchedSubcons->transform(function($s) {
+            $s->avg_rating = round($s->reviews()->avg('rating') ?? 0, 2);
+            $s->review_count = (int) $s->reviews()->count();
+            return $s;
+        });
+
+        // If requested, prioritize by rating (highest first)
+        $prioritizeByRating = $request->boolean('prioritize_by_rating');
+        if ($prioritizeByRating) {
+            $matchedSubcons = $matchedSubcons->sortByDesc('avg_rating')->values();
+        }
+
+        // 4. Prepare the list for AI (include rating info)
         $subconList = $matchedSubcons->map(function($s) {
             $name = preg_replace('/[^A-Za-z0-9 ]/', '', $s->company_name);
             $grade = is_array($s->cidb_grades) ? implode(', ', $s->cidb_grades) : $s->cidb_grades;
             $services = is_array($s->services_provided) ? implode(', ', $s->services_provided) : $s->services_provided;
-            return "Company: {$name} | Subcon Grade: {$grade} | Services: {$services}";
+            $rating = $s->avg_rating > 0 ? "AvgRating: {$s->avg_rating} ({$s->review_count} reviews)" : "NoRating";
+            return "Company: {$name} | Subcon Grade: {$grade} | Services: {$services} | {$rating}";
         })->implode("\n");
 
         $cleanTitle = preg_replace('/[^A-Za-z0-9 ]/', '', $tenders->title);
 
         $prompt = "STRICT INSTRUCTION: Use ONLY the subcontractors listed below.
-                TENDER PROJECT: {$cleanTitle}
-                TENDER GRADES ACCEPTED: {$tenders->required_grade}
-                TENDER SERVICES NEEDED: {$tenders->required_services}
-                TENDER SCOPE: {$tenders->description}
+            TENDER PROJECT: {$cleanTitle}
+            TENDER GRADES ACCEPTED: {$tenders->required_grade}
+            TENDER SERVICES NEEDED: {$tenders->required_services}
+            TENDER SCOPE: {$tenders->description}
 
-                DATABASE LIST OF ELIGIBLE SUBCONTRACTORS:
-                {$subconList}
+            DATABASE LIST OF ELIGIBLE SUBCONTRACTORS:
+            {$subconList}
 
-                MATCHING RULES:
-                1. A subcontractor is eligible if their Grade matches ANY of the TENDER GRADES.
-                2. Rank the top 3 matches primarily based on SERVICE RELEVANCE and SCOPE OF WORK.
+            MATCHING RULES:
+            1. A subcontractor is eligible if their Grade matches ANY of the TENDER GRADES.
+            2. Rank the top 3 matches primarily based on SERVICE RELEVANCE and SCOPE OF WORK.
+            3. If a candidate has an average rating, prefer higher-rated candidates when suitability is comparable.
 
-                OUTPUT FORMAT:
-                - Rank 1: [Company Name]
-                - Matching Logic: [Why they fit]
-                - Risk/Note: [Concerns]";
+            OUTPUT FORMAT:
+            - Rank 1: [Company Name]
+            - Matching Logic: [Why they fit]
+            - Risk/Note: [Concerns]";
 
-        try {
-            $result = Gemini::generativeModel('gemini-3.1-pro-preview')->generateContent($prompt);
-            if (!empty($result->candidates) && !empty($result->candidates[0]->content->parts)) {
-                $aiResponse = $result->candidates[0]->content->parts[0]->text;
-            } else {
-                $aiResponse = $result->text();
+        $useAi = $request->boolean('use_ai', true);
+        if ($useAi) {
+            try {
+                $result = Gemini::generativeModel('gemini-3.1-pro-preview')->generateContent($prompt);
+                if (!empty($result->candidates) && !empty($result->candidates[0]->content->parts)) {
+                    $aiResponse = $result->candidates[0]->content->parts[0]->text;
+                } else {
+                    $aiResponse = $result->text();
+                }
+            } catch (\Exception $e) {
+                Log::error('Gemini AI Error Full: ' . json_encode([
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                    'class' => get_class($e),
+                ]));
+
+                $aiResponse = "🚨 ERROR: " . $e->getMessage() . " | Code: " . $e->getCode() . " | Class: " . get_class($e);
             }
-        } catch (\Exception $e) {
-            Log::error('Gemini AI Error Full: ' . json_encode([
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'class' => get_class($e),
-            ]));
-
-            $aiResponse = "🚨 ERROR: " . $e->getMessage() . " | Code: " . $e->getCode() . " | Class: " . get_class($e);        }
+        } else {
+            $aiResponse = 'AI disabled. Showing prioritized candidates based on selected options.';
+        }
 
         return view('admin.tenders.match-results', compact('tenders', 'aiResponse', 'matchedSubcons'));
     }
@@ -496,5 +517,31 @@ class TenderController extends Controller
 
         // Return a redirect so the browser reloads properly
         return redirect()->back()->with('success', 'Project reassigned successfully!');
+    }
+
+    public function rateSubcon(Request $request, Tender $tender)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'review' => 'nullable|string|max:1000',
+        ]);
+
+        // Check if tender has subcon assigned
+        if (!$tender->selected_subcon_id) {
+            return back()->with('error', 'Cannot rate unassigned projects.');
+        }
+
+        // Create or update review
+        \App\Models\SubconReview::updateOrCreate(
+            ['tender_id' => $tender->id],
+            [
+                'subcon_id' => $tender->selected_subcon_id,
+                'admin_id' => auth()->id(),
+                'rating' => $request->rating,
+                'review' => $request->review,
+            ]
+        );
+
+        return back()->with('success', 'Subcontractor rated successfully.');
     }
 }

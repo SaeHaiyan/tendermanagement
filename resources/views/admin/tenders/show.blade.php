@@ -171,6 +171,52 @@
                         </div>
                     @endif
 
+                    {{-- RATING SECTION --}}
+                    @if(($tender->work_status === 'completed' || $tender->work_status === 'assigned') && $tender->selected_subcon_id)
+                        <div class="bg-amber-50 border border-amber-200 rounded-[2rem] p-8 shadow-sm">
+                            <h4 class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-4">Rate Subcontractor</h4>
+                            @php
+                                $existingReview = $tender->review;
+                            @endphp
+                            @if($existingReview)
+                                <div class="mb-4 p-4 bg-white rounded-2xl border border-amber-100">
+                                    <div class="flex items-center mb-2">
+                                        <span class="text-sm font-black text-amber-600">Rating:</span>
+                                        <div class="flex gap-1 ml-2">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <span class="text-lg {{ $i <= $existingReview->rating ? 'text-amber-500' : 'text-slate-300' }}">★</span>
+                                            @endfor
+                                        </div>
+                                        <span class="text-xs font-bold text-amber-600 ml-2">({{ $existingReview->rating }}/5)</span>
+                                    </div>
+                                    @if($existingReview->review)
+                                        <p class="text-xs text-slate-600 italic">{{ $existingReview->review }}</p>
+                                    @endif
+                                    <p class="text-[10px] text-slate-400 mt-2">Rated {{ $existingReview->updated_at->diffForHumans() }}</p>
+                                </div>
+                            @endif
+                            <form action="{{ route('admin.tenders.rate', $tender->id) }}" method="POST" class="space-y-4">
+                                @csrf
+                                <div>
+                                    <label class="text-[10px] font-black text-amber-700 uppercase tracking-widest block mb-2">Select Rating</label>
+                                    <div class="flex gap-2">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <label class="cursor-pointer flex-1">
+                                                <input type="radio" name="rating" value="{{ $i }}" {{ $existingReview && $existingReview->rating == $i ? 'checked' : '' }} class="sr-only peer" />
+                                                <div class="text-3xl text-center peer-checked:text-amber-500 text-slate-300 hover:text-amber-400 transition">★</div>
+                                            </label>
+                                        @endfor
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-amber-700 uppercase tracking-widest block mb-2">Comments (Optional)</label>
+                                    <textarea name="review" rows="3" placeholder="Add your feedback..." class="w-full text-sm border-amber-200 rounded-xl focus:ring-amber-500 focus:border-amber-500 placeholder:text-slate-300">{{ $existingReview?->review }}</textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-amber-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-amber-700 transition">{{ $existingReview ? 'Update Rating' : 'Submit Rating' }}</button>
+                            </form>
+                        </div>
+                    @endif
+
                     <div class="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm">
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Phase Monitoring</p>
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between mb-2">

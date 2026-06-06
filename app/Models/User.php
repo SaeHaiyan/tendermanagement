@@ -64,4 +64,27 @@ class User extends Authenticatable
             'pending_documents' => 'array',
         ];
     }
+
+    // Relationships
+    public function reviews()
+    {
+        return $this->hasMany(SubconReview::class, 'subcon_id');
+    }
+
+    public function givenReviews()
+    {
+        return $this->hasMany(SubconReview::class, 'admin_id');
+    }
+
+    // Helper accessor for average rating
+    public function getAverageRatingAttribute()
+    {
+        $avg = $this->reviews()->avg('rating');
+        return $avg ? round($avg, 2) : 0;
+    }
+
+    public function getReviewCountAttribute()
+    {
+        return $this->reviews()->count();
+    }
 }

@@ -116,10 +116,10 @@
                     </div>
 
                     {{-- Section 2: FINANCIAL CLAIMS --}}
-                    <div class="group bg-white p-8 rounded-3xl border border-slate-200 shadow-sm transition-all hover:border-emerald-400 hover:shadow-md">
+                    <div class="group bg-white p-8 rounded-3xl border border-slate-300 hover:border-amber-500 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
                             <div class="flex items-center gap-4">
-                                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform">
+                                <div class="p-3 bg-amber-50 text-amber-600 rounded-2xl group-hover:scale-110 transition-transform">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 </div>
                                 <div>
@@ -134,22 +134,22 @@
                             <input type="hidden" name="category_type" value="financial_docs">
 
                             <input type="file" name="documents[]" multiple required
-                                class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:bg-slate-100 file:text-slate-700 file:font-bold file:cursor-pointer hover:file:bg-emerald-50 hover:file:text-emerald-700 transition-all">
+                                class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:bg-slate-100 file:text-slate-700 file:font-bold file:cursor-pointer hover:file:bg-amber-400 hover:file:text-amber-400 transition-all">
 
                             <textarea name="description" rows="2" placeholder="Details regarding this month's measurements..."
-                                class="w-full rounded-2xl border-slate-200 text-sm focus:border-emerald-500 focus:ring-emerald-500 placeholder:text-slate-300 transition-all"></textarea>
+                                class="w-full rounded-2xl border-slate-200 text-sm focus:border-amber-500 focus:ring-amber-500 placeholder:text-slate-300 transition-all"></textarea>
 
-                            <button class="w-full bg-amber-600 text-white px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg active:scale-[0.98]">
+                            <button class="w-full bg-amber-400 text-white px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg active:scale-[0.98]">
                                 Submit Financial Claim
                             </button>
                         </form>
                     </div>
 
                     {{-- Section 3: INVOICES --}}
-                    <div class="group bg-white p-8 rounded-3xl border border-slate-200 shadow-sm transition-all hover:border-blue-400 hover:shadow-md">
+                    <div class="group bg-white p-8 rounded-3xl border border-slate-200 shadow-sm transition-all hover:border-emerald-400 hover:shadow-md">
                         <div class="flex justify-between items-start mb-6">
                             <div class="flex items-center gap-4">
-                                <div class="p-3 bg-blue-50 text-blue-600 rounded-2xl group-hover:scale-110 transition-transform">
+                                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                 </div>
                                 <div>
@@ -164,12 +164,12 @@
                             <input type="hidden" name="category_type" value="invoices">
 
                             <input type="file" name="documents[]" multiple required
-                                class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:bg-slate-100 file:text-slate-700 file:font-bold file:cursor-pointer hover:file:bg-blue-50 hover:file:text-blue-700 transition-all">
+                                class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:bg-slate-100 file:text-slate-700 file:font-bold file:cursor-pointer hover:file:bg-emerald-50 hover:file:text-emerald-700 transition-all">
 
                             <textarea name="description" rows="2" placeholder="Invoice #REF, Bank details, or other notes..."
-                                class="w-full rounded-2xl border-slate-200 text-sm focus:border-blue-500 focus:ring-blue-500 placeholder:text-slate-300 transition-all"></textarea>
+                                class="w-full rounded-2xl border-slate-200 text-sm focus:border-emerald-500 focus:ring-emerald-500 placeholder:text-slate-300 transition-all"></textarea>
 
-                            <button class="w-full bg-emerald-600 text-white px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-[0.98]">
+                            <button class="w-full bg-emerald-600 text-white px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg active:scale-[0.98]">
                                 Submit Final Invoice
                             </button>
                         </form>

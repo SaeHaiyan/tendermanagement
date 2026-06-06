@@ -49,6 +49,64 @@
                     </form>
                 </div>
 
+                {{-- Performance Rating Section --}}
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-8 border-b border-amber-100">
+                    <h4 class="text-xs font-black text-amber-600 uppercase tracking-widest mb-6">Admin Performance Rating</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {{-- Rating Stars and Average --}}
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="mb-4">
+                                @if($subcon->review_count > 0)
+                                    <div class="flex items-center justify-center space-x-2">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            @if($i <= floor($subcon->average_rating))
+                                                <svg class="w-8 h-8 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                                            @elseif($i - 0.5 <= $subcon->average_rating)
+                                                <svg class="w-8 h-8 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" opacity="0.5"/></svg>
+                                            @else
+                                                <svg class="w-8 h-8 text-gray-300 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                                            @endif
+                                        @endfor
+                                    </div>
+                                @else
+                                    <div class="flex items-center justify-center space-x-2">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg class="w-8 h-8 text-gray-300 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                                        @endfor
+                                    </div>
+                                @endif
+                            </div>
+                            <p class="text-3xl font-black text-amber-600">{{ $subcon->average_rating > 0 ? $subcon->average_rating : 'N/A' }}</p>
+                            <p class="text-sm text-amber-700 font-semibold mt-1">out of 5.0</p>
+                        </div>
+
+                        {{-- Review Count --}}
+                        <div class="flex flex-col items-center justify-center border-l border-r border-amber-200">
+                            <p class="text-4xl font-black text-amber-600">{{ $subcon->review_count }}</p>
+                            <p class="text-xs text-amber-700 font-semibold uppercase tracking-wider mt-1">
+                                {{ $subcon->review_count === 1 ? 'Review' : 'Reviews' }}
+                            </p>
+                        </div>
+
+                        {{-- Last Review --}}
+                        <div class="flex flex-col items-center justify-center">
+                            @php
+                                $latestReview = $subcon->reviews()->latest()->first();
+                            @endphp
+                            @if($latestReview)
+                                <p class="text-sm text-amber-700 font-semibold uppercase tracking-wider mb-2">Latest Review</p>
+                                <p class="text-2xl font-black text-amber-600">{{ $latestReview->rating }}</p>
+                                <p class="text-xs text-gray-600 mt-2">{{ $latestReview->created_at->diffForHumans() }}</p>
+                                @if($latestReview->review)
+                                    <p class="text-xs text-gray-600 italic mt-3 text-center line-clamp-2">{{ $latestReview->review }}</p>
+                                @endif
+                            @else
+                                <p class="text-sm text-gray-500 italic">No reviews yet</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Basic Stats --}}
                 <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>

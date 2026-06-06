@@ -19,9 +19,11 @@
                     {{ ('Manage and assign tasks to registered sub-contractors.') }}
                 </p>
             </div>
-            <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded shadow-lg transition duration-200 uppercase tracking-wider text-sm">
+            <{{-- Assign New Task Button --}}
+            <a href="#"
+            class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded shadow-lg transition duration-200 uppercase tracking-wider text-sm">
                 + Assign New Task
-            </button>
+            </a>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">

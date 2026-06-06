@@ -46,6 +46,21 @@
                 </div>
             </div>
 
+            {{-- Controls: Prioritization by rating & AI toggle --}}
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+                <form action="{{ route('admin.tenders.match', $tenders) }}" method="GET" class="flex items-center gap-3">
+                    <label class="inline-flex items-center gap-2 text-sm">
+                        <input type="checkbox" name="prioritize_by_rating" value="1" class="rounded" {{ request()->boolean('prioritize_by_rating') ? 'checked' : '' }} />
+                        <span class="text-sm font-semibold">Prioritize by Rating</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm">
+                        <input type="checkbox" name="use_ai" value="1" class="rounded" {{ request()->boolean('use_ai') ? 'checked' : '' }} />
+                        <span class="text-sm font-semibold">Use AI Matchmaker</span>
+                    </label>
+                    <button type="submit" class="ml-auto bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold">Re-run</button>
+                </form>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                 <div x-show="loading" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
@@ -160,6 +175,8 @@
                                     <th class="px-6 py-4">Company</th>
                                     <th class="px-6 py-4">CIDB Grade</th>
                                     <th class="px-6 py-4">Services</th>
+                                    <th class="px-6 py-4">Rating</th>
+                                    <th class="px-6 py-4">Reviews</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -172,6 +189,8 @@
                                         <td class="px-6 py-4 text-sm text-gray-600">
                                             {{ \Illuminate\Support\Str::limit($subcon->services_provided, 50) }}
                                         </td>
+                                        <td class="px-6 py-4 text-sm font-black text-amber-600">{{ $subcon->avg_rating ?? 'N/A' }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">{{ $subcon->review_count ?? 0 }}</td>
                                     </tr>
                                 @empty
                                     <tr>

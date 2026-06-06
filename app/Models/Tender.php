@@ -30,6 +30,11 @@ class Tender extends Model
         return $this->belongsTo(User::class, 'selected_subcon_id');
     }
 
+    public function review()
+    {
+        return $this->hasOne(SubconReview::class);
+    }
+
     protected $casts = [
         'report_path' => 'array',
         'deadline' => 'date',
