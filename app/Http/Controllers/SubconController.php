@@ -67,15 +67,18 @@ class SubconController extends Controller
         $request->validate([
             'documents' => 'required|array|min:1',
             'documents.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:5120',
+            'doc_type' => 'nullable|string|in:ssm,cidb,bank,other',
         ]);
 
         $pendingDocuments = $user->pending_documents ?? [];
+        $docType = $request->input('doc_type');
 
         foreach ($request->file('documents') as $file) {
             $path = $file->store('pending-account-documents/' . $user->id, 'public');
             $pendingDocuments[] = [
                 'path' => $path,
                 'original_name' => $file->getClientOriginalName(),
+                'type' => $docType ?? 'other',
                 'status' => 'pending',
                 'uploaded_at' => now()->toDateTimeString(),
             ];

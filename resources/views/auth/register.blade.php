@@ -3,7 +3,7 @@
         <h2 class="text-3xl font-extrabold text-gray-900 uppercase tracking-widest">
             SubContractor <span class="text-red-600">Registration</span>
         </h2>
-        <p class="text-sm text-gray-500 mt-2 font-medium">PROCUREMENT MANAGEMENT SYSTEM</p>
+        <p class="text-sm text-gray-500 mt-2 font-medium">TENDER MANAGEMENT SYSTEM</p>
     </div>
 
     <div class="w-full sm:max-w-md mt-6 px-8 py-8 bg-white shadow-xl sm:rounded-lg border-t-4 border-red-600">

@@ -20,7 +20,7 @@
                 </p>
             </div>
             <{{-- Assign New Task Button --}}
-            <a href="#"
+            <a href="{{ route('tasks.asign') }}"
             class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded shadow-lg transition duration-200 uppercase tracking-wider text-sm">
                 + Assign New Task
             </a>

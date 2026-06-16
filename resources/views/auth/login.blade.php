@@ -3,7 +3,7 @@
         <h2 class="text-3xl font-extrabold text-gray-900 uppercase tracking-widest">
             AITO <span class="text-red-600">Portal</span>
         </h2>
-        <p class="text-sm text-gray-500 mt-2 font-medium">PROCUREMENT MANAGEMENT SYSTEM</p>
+        <p class="text-sm text-gray-500 mt-2 font-medium">TENDER MANAGEMENT SYSTEM</p>
     </div>
 
     <x-auth-session-status class="mb-4" :status="session('status')" />
