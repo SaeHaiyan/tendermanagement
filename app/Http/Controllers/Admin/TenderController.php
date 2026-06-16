@@ -143,16 +143,19 @@ class TenderController extends Controller
 
     protected function exportTendersPdf($tenders)
     {
-        $html = view('admin.exports.tenders-pdf', compact('tenders'))->render();
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'landscape');
-        $dompdf->render();
+        // Decode each tender's file submissions tracking data safely
+        $tenders = $tenders->map(function ($tender) {
+            $reportData = is_array($tender->report_path)
+                ? $tender->report_path
+                : json_decode($tender->report_path ?? '', true) ?? [];
+            $tender->categories = $reportData['files'] ?? [];
+            return $tender;
+        });
 
-        return response($dompdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="tenders-report-' . now()->format('Ymd-His') . '.pdf"',
-        ]);
+        // --- QUICK HTML/PDF OVERVIEW PRINT ---
+        // Returns a print-ready document using your AITO logo template which pops open
+        // a save prompt — same approach used for the single tender export.
+        return view('admin.exports.tenders-pdf', compact('tenders'));
     }
 
     public function exportSingle(Request $request, int $id)

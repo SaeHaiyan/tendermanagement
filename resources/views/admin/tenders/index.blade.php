@@ -46,11 +46,11 @@
                                 Reset Filters
                             </a>
                         @endif
-                        <a href="{{ route('admin.tenders.export', array_merge(request()->query(), ['format' => 'excel'])) }}" class="flex items-center gap-2 border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition">
+                        <a href="{{ route('admin.tenders.exportTendersPdf', array_merge(request()->query(), ['format' => 'excel'])) }}" class="flex items-center gap-2 border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
                             Excel
                         </a>
-                        <a href="{{ route('admin.tenders.export', array_merge(request()->query(), ['format' => 'pdf'])) }}" class="flex items-center gap-2 border border-slate-200 hover:border-slate-900 hover:bg-slate-950 hover:text-white px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition">
+                        <a href="{{ route('admin.tenders.exportTendersPdf', array_merge(request()->query(), ['format' => 'pdf'])) }}" class="flex items-center gap-2 border border-slate-200 hover:border-slate-900 hover:bg-slate-950 hover:text-white px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
                             PDF
                         </a>
