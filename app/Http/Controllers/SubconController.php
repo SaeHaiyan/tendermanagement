@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Tender;
+use App\Services\AdminNotificationService;
 
 class SubconController extends Controller
 {
@@ -86,6 +87,20 @@ class SubconController extends Controller
 
         $user->pending_documents = $pendingDocuments;
         $user->save();
+
+        // Append admin notification about uploaded account documents
+        try {
+            $svc = app(AdminNotificationService::class);
+            $svc->append([
+                'type' => 'account_documents',
+                'subcon_id' => $user->id,
+                'subcon' => $user->company_name ?? $user->name,
+                'message' => 'Subcontractor uploaded account documents.',
+                'link' => route('admin.subcon.show', $user->id),
+            ]);
+        } catch (\Throwable $e) {
+            // ignore notification failures
+        }
 
         return back()->with('success', 'Your documents were uploaded successfully. Admin will review them shortly.');
     }

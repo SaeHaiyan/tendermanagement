@@ -181,11 +181,15 @@ class AdminController extends Controller
                             $events->push([
                                 'time' => $time,
                                 'subcon' => $tender->selectedSubcon?->company_name ?? $tender->selectedSubcon?->name,
+                                'subcon_id' => $tender->selectedSubcon?->id,
                                 'tender' => $tender->title,
+                                'tender_id' => $tender->id,
                                 'category' => str_replace('_', ' ', ucfirst($category)),
                                 'status' => $file['status'] ?? 'pending',
                                 'uploader' => $tender->selectedSubcon?->name ?? 'Subcontractor',
                                 'type' => 'tender_file',
+                                'path' => $file['path'] ?? null,
+                                'original_name' => $file['original_name'] ?? ($file['name'] ?? null),
                             ]);
                         }
                     }
@@ -210,6 +214,7 @@ class AdminController extends Controller
                 $events->push([
                     'time' => $time,
                     'subcon' => $user->company_name ?? $user->name,
+                    'subcon_id' => $user->id,
                     'tender' => null,
                     'category' => 'Profile Update',
                     'status' => 'updated',

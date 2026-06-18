@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\TenderController;
 use App\Http\Controllers\SubconController;
 use App\Http\Middleware\CheckAdmin;
@@ -68,6 +69,9 @@ Route::middleware(['auth', CheckAdmin::class])->group(function () {
     Route::patch('/admin/tenders/{id}/reassign', [TenderController::class, 'reassign'])->name('admin.tenders.reassign');
     Route::get('/admin/tenders/{tender}/export-single', [TenderController::class, 'exportSingle'])->name('admin.tenders.export-single');
     Route::get('/admin/tenders/{tender}', [TenderController::class, 'show'])->name('admin.tenders.show');
+    Route::get('/admin/notifications', [NotificationController::class, 'index'])->name('admin.notifications.index');
+    Route::post('/admin/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('admin.notifications.read');
+    Route::post('/admin/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('admin.notifications.readAll');
 
     Route::patch('/admin/tenders/{id}/approve', [\App\Http\Controllers\Admin\TenderController::class, 'approveReport'])->name('admin.tenders.approve');
     Route::post('/admin/tenders/{tender}/reject-file', [TenderController::class, 'rejectFile'])->name('admin.tenders.reject-file');

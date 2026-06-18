@@ -51,9 +51,26 @@
                             }
                         @endphp
 
-                        <span class="inline-flex items-center px-3 py-2 rounded-full text-xs font-black uppercase tracking-[0.24em] {{ $badgeClass }}">
-                            {{ $event['status'] ?? (isset($event['type']) && $event['type'] === 'profile_update' ? 'updated' : 'pending') }}
-                        </span>
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex items-center px-3 py-2 rounded-full text-xs font-black uppercase tracking-[0.24em] {{ $badgeClass }}">
+                                {{ $event['status'] ?? (isset($event['type']) && $event['type'] === 'profile_update' ? 'updated' : 'pending') }}
+                            </span>
+
+                            <div class="flex items-center gap-2">
+                                @if(isset($event['type']) && $event['type'] === 'profile_update' && !empty($event['subcon_id']))
+                                    <a href="{{ route('admin.subcon.show', $event['subcon_id']) }}" class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">View Profile</a>
+                                @endif
+
+                                @if(isset($event['type']) && $event['type'] === 'tender_file')
+                                    @if(!empty($event['tender_id']))
+                                        <a href="{{ route('admin.tenders.show', $event['tender_id']) }}" class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">View Tender</a>
+                                    @endif
+                                    @if(!empty($event['path']))
+                                        <a href="{{ asset('storage/' . $event['path']) }}" target="_blank" class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50">View Document</a>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             @empty

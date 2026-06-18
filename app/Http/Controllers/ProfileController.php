@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Services\AdminNotificationService;
 
 class ProfileController extends Controller
 {
@@ -42,6 +43,20 @@ class ProfileController extends Controller
             $request->user()->email_verified_at = null;
         }
         $request->user()->save();
+
+        // Append admin notification about profile update
+        try {
+            $svc = app(AdminNotificationService::class);
+            $svc->append([
+                'type' => 'profile_update',
+                'subcon_id' => $request->user()->id,
+                'subcon' => $request->user()->company_name ?? $request->user()->name,
+                'message' => 'Subcontractor updated their profile.',
+                'link' => route('admin.subcon.show', $request->user()->id),
+            ]);
+        } catch (\Throwable $e) {
+            // ignore
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
 

@@ -46,8 +46,20 @@
                             <a href="{{ route('admin.pending-approvals') }}" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors {{ request()->routeIs('admin.pending-approvals') ? 'bg-red-700/40 text-white' : '' }}">
                                 {{ ('Pending Approvals') }}
                             </a>
-                            <a href="{{ route('admin.activity') }}" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors {{ request()->routeIs('admin.activity') ? 'bg-red-700/40 text-white' : '' }}">
-                                {{ ('Activity') }}
+                            @php
+                                try {
+                                    $notifSvc = app(\App\Services\AdminNotificationService::class);
+                                    $activityCount = $notifSvc->unreadCount();
+                                } catch (\Throwable $e) {
+                                    $activityCount = 0;
+                                }
+                            @endphp
+
+                            <a href="{{ route('admin.activity') }}" class="flex items-center justify-between gap-2 w-full text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors {{ request()->routeIs('admin.activity') ? 'bg-red-700/40 text-white' : '' }}">
+                                <span>{{ ('Activity') }}</span>
+                                @if(!empty($activityCount) && $activityCount > 0)
+                                    <span class="inline-flex items-center justify-center h-6 min-w-[22px] px-2 rounded-full bg-white text-red-700 text-xs font-black">{{ $activityCount }}</span>
+                                @endif
                             </a>
                         @else
                             <a href="#" class="block text-red-100 hover:text-white hover:bg-red-700/30 px-3 py-2 rounded-md text-xs font-medium tracking-wide transition-colors">
