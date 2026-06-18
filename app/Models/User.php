@@ -62,6 +62,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'cidb_grades' => 'array',
             'pending_documents' => 'array',
+            'services_provided' => 'array',
         ];
     }
 

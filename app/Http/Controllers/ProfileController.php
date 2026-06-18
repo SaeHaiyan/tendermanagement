@@ -34,6 +34,10 @@ class ProfileController extends Controller
             $request->user()->cidb_grades = $request->input('cidb_grades');
         }
 
+        if ($request->has('services_provided')) {
+            $request->user()->services_provided = $request->input('services_provided');
+        }
+
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }

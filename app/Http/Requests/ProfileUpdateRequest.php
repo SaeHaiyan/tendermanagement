@@ -25,7 +25,8 @@ class ProfileUpdateRequest extends FormRequest
             'cidb_reg_number' => ['nullable', 'string', 'max:100'],
             'ssm_number' => ['nullable', 'string', 'max:100'],
             'company_level' => ['nullable', 'string', 'max:100'],
-            'services_provided' => ['nullable', 'string'],
+            'services_provided' => ['nullable', 'array'],
+            'services_provided.*' => ['string', 'max:255'],
             'year_established' => ['nullable', 'integer'],
             'cidb_grades' => ['nullable', 'array'], // Validate as an array
         ];

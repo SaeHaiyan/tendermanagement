@@ -103,7 +103,29 @@
 
             <div>
                 <x-input-label for="services_provided" :value="__('Services Provided')" />
-                <textarea id="services_provided" name="services_provided" rows="3" class="mt-1 block w-full border-slate-200 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">{{ old('services_provided', $user->services_provided) }}</textarea>
+                @php
+                    $availableServices = [
+                        'General Contracting',
+                        'Civil Works',
+                        'Electrical',
+                        'Plumbing',
+                        'Mechanical',
+                        'Painting',
+                        'Carpentry',
+                        'Landscaping',
+                        'Specialist Works'
+                    ];
+                    $selectedServices = is_array($user->services_provided) ? $user->services_provided : (json_decode($user->services_provided, true) ?? []);
+                @endphp
+
+                <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
+                    @foreach($availableServices as $svc)
+                        <label class="flex items-center gap-2 p-2 rounded border border-slate-200 cursor-pointer hover:bg-red-50">
+                            <input type="checkbox" name="services_provided[]" value="{{ $svc }}" class="h-4 w-4" {{ in_array($svc, $selectedServices) ? 'checked' : '' }}>
+                            <span class="text-sm font-medium text-slate-700">{{ $svc }}</span>
+                        </label>
+                    @endforeach
+                </div>
             </div>
         </div>
 

@@ -177,7 +177,19 @@
                     <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Services Provided</h4>
                     <div class="bg-gray-50 p-6 rounded border border-gray-200 text-gray-700 leading-relaxed italic">
                         @if($subcon->services_provided)
-                            {!! nl2br(e($subcon->services_provided)) !!}
+                            @php
+                                $services = is_array($subcon->services_provided) ? $subcon->services_provided : (string) $subcon->services_provided;
+                            @endphp
+
+                            @if(is_array($services))
+                                <ul class="list-disc pl-5 space-y-1">
+                                    @foreach($services as $svc)
+                                        <li class="text-sm text-gray-800">{{ $svc }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                {!! nl2br(e($services)) !!}
+                            @endif
                         @else
                             <span class="text-gray-400">No services description provided by this subcon.</span>
                         @endif
