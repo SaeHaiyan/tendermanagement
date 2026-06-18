@@ -141,34 +141,85 @@ class AdminController extends Controller
 
     public function activity()
     {
+        $request = request();
         $events = collect();
+
+        $start = $request->query('start_date');
+        $end = $request->query('end_date');
+
+        // Helper to check optional date range
+        $inRange = function ($time) use ($start, $end) {
+            try {
+                $t = \Carbon\Carbon::parse($time);
+            } catch (\Throwable $e) {
+                return false;
+            }
+            if ($start) {
+                $s = \Carbon\Carbon::parse($start)->startOfDay();
+                if ($t->lt($s)) return false;
+            }
+            if ($end) {
+                $eDate = \Carbon\Carbon::parse($end)->endOfDay();
+                if ($t->gt($eDate)) return false;
+            }
+            return true;
+        };
 
         Tender::with('selectedSubcon')
             ->whereNotNull('report_path')
             ->latest('updated_at')
             ->get()
-            ->each(function ($tender) use ($events) {
+            ->each(function ($tender) use ($events, $inRange) {
                 $reportData = is_array($tender->report_path)
                     ? $tender->report_path
                     : json_decode($tender->report_path ?? '', true) ?? [];
 
                 foreach ($reportData['files'] ?? [] as $category => $files) {
                     foreach ($files as $file) {
-                        if (!empty($file['uploaded_at'])) {
+                        $time = $file['uploaded_at'] ?? ($file['reviewed_at'] ?? null);
+                        if ($time && $inRange($time)) {
                             $events->push([
-                                'time' => $file['uploaded_at'],
+                                'time' => $time,
                                 'subcon' => $tender->selectedSubcon?->company_name ?? $tender->selectedSubcon?->name,
                                 'tender' => $tender->title,
                                 'category' => str_replace('_', ' ', ucfirst($category)),
                                 'status' => $file['status'] ?? 'pending',
                                 'uploader' => $tender->selectedSubcon?->name ?? 'Subcontractor',
+                                'type' => 'tender_file',
                             ]);
                         }
                     }
                 }
             });
 
-        $events = $events->sortByDesc('time')->take(50);
+        // Include profile updates from subcontractors (based on updated_at)
+        $userQuery = User::query()->where('role', 'subcon');
+        if ($start) {
+            $userQuery->where('updated_at', '>=', \Carbon\Carbon::parse($start)->startOfDay());
+        }
+        if ($end) {
+            $userQuery->where('updated_at', '<=', \Carbon\Carbon::parse($end)->endOfDay());
+        }
+        $userQuery->latest('updated_at')->get()->each(function ($user) use ($events, $inRange) {
+            // avoid including users without meaningful updates (created_at == updated_at)
+            if (!$user->updated_at) return;
+            if ($user->created_at && $user->created_at->eq($user->updated_at)) return;
+
+            $time = $user->updated_at->toDateTimeString();
+            if ($inRange($time)) {
+                $events->push([
+                    'time' => $time,
+                    'subcon' => $user->company_name ?? $user->name,
+                    'tender' => null,
+                    'category' => 'Profile Update',
+                    'status' => 'updated',
+                    'uploader' => $user->name,
+                    'type' => 'profile_update',
+                ]);
+            }
+        });
+
+        $events = $events->sortByDesc('time')->take(100);
 
         return view('admin.activity', compact('events'));
     }

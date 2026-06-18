@@ -12,17 +12,47 @@
     </x-slot>
 
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8">
+        <div class="flex items-center justify-between gap-4 mb-6">
+            <div class="text-sm text-slate-500">Showing recent activity. Use the filters to narrow results.</div>
+
+            <form method="GET" action="{{ route('admin.activity') }}" class="flex items-center gap-2">
+                <label class="sr-only" for="start_date">Start date</label>
+                <input id="start_date" name="start_date" type="date" value="{{ request('start_date') }}" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+
+                <label class="sr-only" for="end_date">End date</label>
+                <input id="end_date" name="end_date" type="date" value="{{ request('end_date') }}" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+
+                <button type="submit" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold uppercase tracking-widest text-slate-700 hover:bg-slate-50">Filter</button>
+                <a href="{{ route('admin.activity') }}" class="inline-flex items-center gap-2 rounded-xl border border-transparent bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">Clear</a>
+            </form>
+        </div>
+
         <div class="space-y-4">
             @forelse($events as $event)
                 <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
                             <p class="text-xs uppercase tracking-[0.24em] text-slate-400 font-black">{{ \Illuminate\Support\Carbon::parse($event['time'])->format('d M Y H:i') }}</p>
-                            <h3 class="mt-2 text-lg font-bold text-slate-900">{{ $event['subcon'] ?? 'Subcontractor' }} uploaded {{ $event['category'] }}</h3>
-                            <p class="text-sm text-slate-600">Project: <span class="font-semibold text-slate-800">{{ $event['tender'] }}</span></p>
+
+                            @if(isset($event['type']) && $event['type'] === 'profile_update')
+                                <h3 class="mt-2 text-lg font-bold text-slate-900">{{ $event['subcon'] ?? 'Subcontractor' }} updated profile</h3>
+                                <p class="text-sm text-slate-600">Profile updated by <span class="font-semibold text-slate-800">{{ $event['uploader'] }}</span></p>
+                            @else
+                                <h3 class="mt-2 text-lg font-bold text-slate-900">{{ $event['subcon'] ?? 'Subcontractor' }} uploaded {{ $event['category'] }}</h3>
+                                <p class="text-sm text-slate-600">Project: <span class="font-semibold text-slate-800">{{ $event['tender'] ?? '—' }}</span></p>
+                            @endif
                         </div>
-                        <span class="inline-flex items-center px-3 py-2 rounded-full text-xs font-black uppercase tracking-[0.24em] {{ $event['status'] === 'approved' ? 'bg-emerald-50 text-emerald-700' : ($event['status'] === 'rejected' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700') }}">
-                            {{ $event['status'] ?? 'pending' }}
+
+                        @php
+                            $status = $event['status'] ?? 'pending';
+                            $badgeClass = $status === 'approved' ? 'bg-emerald-50 text-emerald-700' : ($status === 'rejected' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700');
+                            if(isset($event['type']) && $event['type'] === 'profile_update') {
+                                $badgeClass = 'bg-sky-50 text-sky-700';
+                            }
+                        @endphp
+
+                        <span class="inline-flex items-center px-3 py-2 rounded-full text-xs font-black uppercase tracking-[0.24em] {{ $badgeClass }}">
+                            {{ $event['status'] ?? (isset($event['type']) && $event['type'] === 'profile_update' ? 'updated' : 'pending') }}
                         </span>
                     </div>
                 </div>

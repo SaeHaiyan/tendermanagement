@@ -57,8 +57,7 @@ Route::middleware(['auth', CheckAdmin::class])->group(function () {
     Route::delete('/admin/subcon/{id}', [AdminController::class, 'destroy'])->name('admin.subcon.destroy');
 
     Route::get('/admin/tenders', [TenderController::class, 'index'])->name('admin.tenders.index');
-    Route::get('/admin/tenders/{tender}/exportTendersPdf', [TenderController::class, 'exportTendersPdf'])->name('admin.tenders.exportTendersPdf');
-    Route::get('/admin/tenders/create', [TenderController::class, 'create'])->name('admin.tenders.create');
+    Route::get('admin/tenders/export-pdf', [TenderController::class, 'exportTendersPdf'])->name('admin.tenders.exportTendersPdf');    Route::get('/admin/tenders/create', [TenderController::class, 'create'])->name('admin.tenders.create');
     Route::post('/admin/tenders', [TenderController::class, 'store'])->name('admin.tenders.store');
     Route::get('/admin/tenders/{tender}/edit', [TenderController::class, 'edit'])->name('admin.tenders.edit');
     Route::put('/admin/tenders/{tender}', [TenderController::class, 'update'])->name('admin.tenders.update');
