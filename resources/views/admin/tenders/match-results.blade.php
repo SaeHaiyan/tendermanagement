@@ -187,7 +187,13 @@
                                             {{ implode(', ', $subcon->cidb_grades) }}
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-600">
-                                            {{ \Illuminate\Support\Str::limit($subcon->services_provided, 50) }}
+                                            @php
+                                                $servicesString = is_array($subcon->services_provided)
+                                                    ? implode(', ', $subcon->services_provided)
+                                                    : $subcon->services_provided;
+                                            @endphp
+
+                                            {{ \Illuminate\Support\Str::limit($servicesString, 50) }}
                                         </td>
                                         <td class="px-6 py-4 text-sm font-black text-amber-600">{{ $subcon->avg_rating ?? 'N/A' }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-500">{{ $subcon->review_count ?? 0 }}</td>
